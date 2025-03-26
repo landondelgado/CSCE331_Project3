@@ -1,4 +1,3 @@
-/* Reset margin & padding */
 * {
     margin: 0;
     padding: 0;
@@ -15,18 +14,18 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Background image full-screen */
 .main-container {
+    position: relative;
     background-image: url('./images/bobabackground.png');
-    background-size: 100%;
+    background-size: cover;
     background-position: center;
     height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-/* Centered login box */
 .login-box {
     background-color: rgba(255, 255, 255, 0.9);
     padding: 40px;
@@ -36,14 +35,12 @@ body {
     text-align: center;
 }
 
-/* Title */
 .login-title {
     margin-bottom: 20px;
     font-size: 24px;
-    color: #333;
+    color: black;
 }
 
-/* Inputs */
 .login-input {
     width: 100%;
     padding: 10px;
@@ -53,7 +50,12 @@ body {
     font-size: 16px;
 }
 
-/* Button */
+.customer-div{
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
 .login-button {
     width: 100%;
     padding: 10px;
@@ -69,4 +71,25 @@ body {
 .login-button:hover {
     background-color: #5c4040;
 }
-  
+
+.image-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    border: none;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 6px;
+}
+
+.button-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 8px;
+}
+
+.button-text {
+    font-size: 14px;
+    color: #333;
+}
