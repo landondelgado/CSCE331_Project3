@@ -25,7 +25,51 @@ body {
     justify-content: center;
     align-items: center;
 }
-
+.menu-container {
+    position: relative;
+    background-image: url('./images/bobabackground.png');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.cust-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+.search-bar {
+    padding: 10px;
+    padding-left: 20px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    width: 70vh;
+  }
+  .order-content {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .left-box {
+    background-color: #ffffff;
+    border-radius: 20px;
+    width: 90%;
+    height: 650px;
+    padding: 20px;
+    border: 1px solid #ddd;
+  }
+  
+  .right-box {
+    background-color: #ffffff;
+    border-radius: 20px;
+    width: 30%;
+    height: 650px;
+    padding: 20px;
+    border: 1px solid #ddd;
+  }
 .login-box {
     background-color: rgba(255, 255, 255, 0.9);
     padding: 40px;

@@ -1,6 +1,7 @@
 // MenuPOS.jsx
 import React from 'react';
-
+import customerIcon from './images/customer.png';
+import './default_styles.css';
 function Menu() {
   return (
     <div>
