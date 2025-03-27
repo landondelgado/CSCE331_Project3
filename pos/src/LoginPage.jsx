@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import customerIcon from './images/customer.png';
+import shareteaLogo from './images/ShareteaLogo.png';
+import "./default_styles.css";
 
 // Puts together the entire login page
 function LoginPage() {
@@ -12,7 +14,13 @@ function LoginPage() {
     };
 
     return (
-        <div className="relative h-screen flex flex-col justify-center items-center bg-cover bg-center" style={{ backgroundImage: "url('./images/bobabackground.png')" }}>
+        <div className="relative h-screen flex flex-col justify-center items-center bg-cover bg-center" style={{ backgroundImage: "url('./images/bobabackground.svg')" }}>
+            <img 
+                src={shareteaLogo} 
+                alt="Sharetea Logo" 
+                className="absolute top-0 h-20"
+            />
+
             <CustomerInterfaceButton></CustomerInterfaceButton>
 
             <div className="bg-white/90 p-10 rounded-xl w-72 text-center">

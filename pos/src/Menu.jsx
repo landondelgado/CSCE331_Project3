@@ -4,7 +4,7 @@ function Menu() {
   return (
     <div
       className="relative h-screen flex flex-col bg-cover bg-center"
-      style={{ backgroundImage: "url('./images/bobabackground.png')" }}
+      style={{ backgroundImage: "url('./images/bobabackground.svg')" }}
     >
       <div className="flex justify-between items-center p-4">
         <input
