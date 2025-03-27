@@ -1,40 +1,38 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import customerIcon from './images/customer.png';
-import './default_styles.css';
 
 function LoginPage() {
     const navigate = useNavigate();
 
     const goToPOSMenu = (e) => {
         e.preventDefault();
-        // Add auth logic here later
         navigate('/menupos');
     };
 
     const goToCustomerInterface = (e) => {
         e.preventDefault();
         navigate('/menu');
-    }
+    };
 
     return (
-    <div className="main-container">
-        <div className="customer-div">
-            <button className="image-button" onClick={goToCustomerInterface}>
-                <img src={customerIcon} alt="Customer Interface" className="button-icon" />
-                <span className="button-text">Customer Interface</span>
-            </button>
-        </div>
+        <div className="relative h-screen flex flex-col justify-center items-center bg-cover bg-center" style={{ backgroundImage: "url('./images/bobabackground.png')" }}>
+            <div className="absolute top-5 right-5">
+                <button onClick={goToCustomerInterface} className="flex flex-col items-center px-4 py-3 bg-white/90 rounded-md shadow hover:shadow-md transition">
+                    <img src={customerIcon} alt="Customer Interface" className="w-14 h-14 mb-2" />
+                    <span className="text-sm text-gray-800">Customer Interface</span>
+                </button>
+            </div>
 
-        <div className="login-box">
-            <h2 className="login-title">Log in to Register</h2>
-            <form className="login-form" onSubmit={goToPOSMenu}>
-                <input type="text" placeholder="Username" className="login-input" />
-                <input type="password" placeholder="Password" className="login-input" />
-                <button type="submit" className="login-button">Login</button>
-            </form>
+            <div className="bg-white/90 p-10 rounded-xl w-72 text-center">
+                <h2 className="mb-5 text-2xl font-semibold text-black">Log in to Register</h2>
+                <form onSubmit={goToPOSMenu} className="space-y-4">
+                    <input type="text" placeholder="Username" className="w-full px-3 py-2 border border-gray-300 rounded-md text-base" />
+                    <input type="password" placeholder="Password" className="w-full px-3 py-2 border border-gray-300 rounded-md text-base" />
+                    <button type="submit" className="w-full px-3 py-2 bg-[#6b4f4f] text-white rounded-md text-base hover:bg-[#5c4040] transition">Login</button>
+                </form>
+            </div>
         </div>
-    </div>
     );
 }
 
