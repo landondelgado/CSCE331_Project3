@@ -1,48 +1,91 @@
 import React from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+// Creates header with logo, navigate buttons, time, and logout
 function Header() {
-  return (
-      <div className="relative flex flex-row justify-center items-center bg-cover bg-center p-8">
+    const [time, setTime] = useState(getCurrentTime());
+    const navigate = useNavigate();
 
-          <div className="absolute top-0 h-20">
-              <img src="/images/ShareteaLogo.png" alt="Sharetea" className="h-12" />
-          </div>
+    function getCurrentTime() {
+        const now = new Date();
+        return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
 
-          <div className="absolute right-7 top-6 flex items-center space-x-4">
-              <div className="text-white text-4xl font-bold">10:42 AM</div>
-              <button className="bg-white text-2xl font-semibold text-black rounded-full px-4 py-1 shadow">Logout</button>
-          </div>
-      </div>
-  );
-}
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTime(getCurrentTime());
+        }, 1000);
+        return () => clearInterval(interval);
+    }, []);
 
-function MenuItem({ icon, label, color = "text-black"}) {
+    const navItems = [
+        { label: 'Home', icon: '/images/home.png', route: '/menupos' },
+        { label: 'Analytics', icon: '/images/analytics.png', route: '/analytics' },
+        { label: 'Inventory', icon: '/images/inventory.png', route: '/inventory' },
+    ];
+
     return (
-        <div className="flex flex-col items-center justify-center space-y-1">
-            <img src={icon} alt={label} className="w-[175px] h-[175px]" />
-            <div className={`text-xl font-bold ${color}`}>{label}</div>
+        <div className="relative flex flex-row justify-center items-center bg-cover bg-center h-20 py-6 px-8">
+            {/* Nav Buttons */}
+            <div className="absolute top-4 left-12 flex space-x-6">
+                {navItems.map((item, index) => (
+                    <button
+                        key={index}
+                        onClick={() => navigate(item.route)}
+                        className="flex flex-col items-center text-white hover:scale-105 transition-transform"
+                    >
+                        <img src={item.icon} alt={item.label} className="w-10 h-10 mb-1" />
+                        <span className="text-xs sm:text-sm font-medium">{item.label}</span>
+                    </button>
+                ))}
+            </div>
+            
+            {/* Logo */}
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2">
+                <img src="/images/ShareteaLogo.png" alt="Sharetea" className="h-16" />
+            </div>
+
+            {/* Time + Logout */}
+            <div className="absolute right-6 top-5 flex items-center space-x-4">
+                <button
+                    className="bg-red-500 text-lg sm:text-xl font-semibold text-white rounded-full px-4 py-1 shadow"
+                    onClick={() => navigate('/')}
+                >
+                    Logout
+                </button>
+                <div className="bg-slate-600 py-2 px-4 rounded-full text-white text-2xl font-bold">
+                    {time}
+                </div>
+            </div>
         </div>
     );
 }
 
+// Generalized class to make menu category items
+function MenuCategory({ icon, label, color = "text-black", onClick }) {
+    return (
+        <button
+            onClick={onClick}
+            className="flex flex-col items-center justify-center space-y-4 w-full"
+        >
+            <img src={icon} alt={label} className="w-full max-w-[8rem] aspect-square object-cover rounded-xl" />
+            <div className={`text-lg font-extrabold tracking-wide underline ${color}`}>
+                {label}
+            </div>
+        </button>
+    );
+}
+
+// Class to make order summary panel
 function OrderSummary() {
     return (
-        <div className="bg-white h-[750px] w-1/4 rounded-2xl shadow border border-blue-300 p-4 flex flex-col justify-between">
+        // Order Div
+        <div className="bg-white w-full max-w-[20%] rounded-2xl shadow border border-blue-300 p-4 flex flex-col justify-between">
             <div>
                 <h2 className="text-lg font-semibold text-center mb-2 border-b pb-2">Order</h2>
                 <div className="space-y-2">
-                    <div className="flex justify-between">
-                        <span>MDM BRW HNY</span>
-                        <span>$6.38</span>
-                    </div>
-                    <div className="flex justify-between text-green-500 pl-4 text-sm">
-                        <span>+ Lychee</span>
-                        <span>+ $1.00</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span>MDM FRT TPCL</span>
-                        <span>$7.49</span>
-                    </div>
+                    {/*Place Order Items Here*/}
                 </div>
             </div>
 
@@ -56,8 +99,9 @@ function OrderSummary() {
     );
 }
 
+// Puts the categories into a div
 function MainMenu() {
-    const menuItems = [
+    const menuCategories = [
         { icon: "/images/brewed_tea.jpg", label: "Brewed Tea", color: "text-amber-900" },
         { icon: "/images/milk_tea.jpg", label: "Milk Tea" },
         { icon: "/images/fruit_tea.jpg", label: "Fruit Tea", color: "text-fuchsia-500" },
@@ -73,24 +117,25 @@ function MainMenu() {
     ];
 
     return (
-        <div className="bg-white rounded-3xl p-6 w-3/4 h-[750px] shadow-lg flex flex-col justify-between">
-            <div className="grid grid-cols-4 gap-6">
-                {menuItems.map((item, index) => (
-                    <MenuItem key={index} {...item} />
+        <div className="bg-white rounded-3xl p-6 w-full max-w-[80%] flex-grow shadow-lg flex flex-col justify-between">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                {menuCategories.map((item, index) => (
+                    <MenuCategory key={index} {...item} />
                 ))}
             </div>
         </div>
     );
 }
 
+// Constructs the MenuPOS screen
 function MenuPOS() {
     return (
-        <div className="h-screen w-screen bg-cover bg-center" style={{ backgroundImage: "url('./images/bobabackground.svg')" }}>
+        <div className="min-h-screen w-full bg-cover bg-center" style={{ backgroundImage: "url('./images/bobabackground.svg')" }}>
             <Header />
-            <div className="flex gap-6 mt-6 px-6">
+            <main className="flex flex-1 gap-6 p-6 overflow-auto">
                 <MainMenu />
                 <OrderSummary />
-            </div>
+            </main>
         </div>
     );
 }
