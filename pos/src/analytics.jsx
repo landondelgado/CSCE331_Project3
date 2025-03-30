@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
+//header 
 function Header() {
   const navigate = useNavigate();
   const [time, setTime] = useState(getCurrentTime());
@@ -16,6 +16,7 @@ function Header() {
     return () => clearInterval(interval);
   }, []);
 
+  //icons
   const navItems = [
     { label: 'Home', icon: '/images/home.png', route: '/menupos' },
     { label: 'Analytics', icon: '/images/analytics.png', route: '/analytics' },
