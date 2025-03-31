@@ -18,7 +18,7 @@ function InventoryHeader() {
   }, []);
 
   const navItems = [
-    { label: 'Home', icon: '/images/home.png', route: '/menu' },
+    { label: 'Home', icon: '/images/home.png', route: '/menupos' },
     { label: 'Analytics', icon: '/images/analytics.png', route: '/analytics' },
     { label: 'Inventory', icon: '/images/inventory.png', route: '/inventory' },
   ];
