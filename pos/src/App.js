@@ -5,6 +5,7 @@ import LoginPage from './LoginPage';
 import Menu from './Menu';
 import MenuPOS from './MenuPOS'
 import Analytics from './analytics'; 
+import InventoryPage from './InventoryPage'; 
 
 
 function App() {
