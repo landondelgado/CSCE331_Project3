@@ -5,6 +5,7 @@ import LoginPage from './LoginPage';
 import Menu from './Menu';
 import MenuPOS from './MenuPOS'
 import Analytics from './analytics'; 
+import InventoryPage from './InventoryPage'; 
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/menu" element={<Menu />} />
         <Route path="/menupos" element={<MenuPOS />} />
         <Route path="/analytics" element={<Analytics />} />
+        <Route path="/inventory" element={<InventoryPage />} />
       </Routes>
     </Router>
   );
