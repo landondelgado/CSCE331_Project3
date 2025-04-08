@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE = 'http://localhost:3001/api/inventory';
+const API_BASE = process.env.REACT_APP_API_BASE || '/api/inventory';
 
 // Header Component (as used in Analytics styling)
 function InventoryHeader() {
