@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE = 'http://localhost:3001/api/inventory';
+
 // Header Component (as used in Analytics styling)
 function InventoryHeader() {
   const navigate = useNavigate();
@@ -105,13 +107,13 @@ function AddStockModal({ onClose, onSubmit }) {
 
 /* Modal Component for "Create Item" */
 function CreateItemModal({ onClose, onSubmit }) {
+  const [itemId, setItemId] = useState('');
+  const [itemName, setItemName] = useState('');
   const [category, setCategory] = useState('');
-  const [stock, setStock] = useState('');
-  const [prevUsage, setPrevUsage] = useState('');
-  const [lowStockItems, setLowStockItems] = useState('');
+  const [price, setPrice] = useState('');
   
   const handleSubmit = () => {
-    onSubmit({ category, stock, prevUsage, lowStockItems });
+    onSubmit({ itemId, itemName, category, price });
     onClose();
   };
   
@@ -119,35 +121,38 @@ function CreateItemModal({ onClose, onSubmit }) {
     <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded shadow-lg w-80">
         <h3 className="text-xl font-bold mb-4">Create Item</h3>
+        <label className="block text-gray-700 mb-1">Item ID:</label>
+        <input
+          type="number"
+          value={itemId}
+          min="0"
+          onChange={(e) => setItemId(e.target.value)}
+          className="w-full border rounded px-2 py-1 mb-4"
+          placeholder="Enter category"
+        />
+        <label className="block text-gray-700 mb-1">Item Name:</label>
+        <input
+          type="text"
+          value={itemName}
+          onChange={(e) => setItemName(e.target.value)}
+          className="w-full border rounded px-2 py-1 mb-4"
+          placeholder="Enter stock amount"
+        />
         <label className="block text-gray-700 mb-1">Category:</label>
         <input
           type="text"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           className="w-full border rounded px-2 py-1 mb-4"
-          placeholder="Enter category"
-        />
-        <label className="block text-gray-700 mb-1">Stock:</label>
-        <input
-          type="number"
-          value={stock}
-          onChange={(e) => setStock(e.target.value)}
-          className="w-full border rounded px-2 py-1 mb-4"
-          placeholder="Enter stock amount"
-        />
-        <label className="block text-gray-700 mb-1">Previous Usage:</label>
-        <input
-          type="number"
-          value={prevUsage}
-          onChange={(e) => setPrevUsage(e.target.value)}
-          className="w-full border rounded px-2 py-1 mb-4"
           placeholder="Enter previous usage"
         />
-        <label className="block text-gray-700 mb-1">Low Stock Items:</label>
+        <label className="block text-gray-700 mb-1">Price:</label>
         <input
-          type="text"
-          value={lowStockItems}
-          onChange={(e) => setLowStockItems(e.target.value)}
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          step="0.01"
+          min="0"
           className="w-full border rounded px-2 py-1 mb-4"
           placeholder="Enter low stock items"
         />
@@ -166,42 +171,134 @@ function CreateItemModal({ onClose, onSubmit }) {
 
 /* Modal Component for "Edit Item" */
 function EditItemModal({ onClose, onSubmit }) {
-  const [itemToEdit, setItemToEdit] = useState('');
-  const [newStock, setNewStock] = useState('');
-  
-  const handleSubmit = () => {
-    onSubmit({ itemToEdit, newStock });
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const [lookupId, setLookupId] = useState('');
+  const [lookupName, setLookupName] = useState('');
+
+  const [itemId, setItemId] = useState('');
+  const [itemName, setItemName] = useState('');
+  const [category, setCategory] = useState('');
+  const [price, setPrice] = useState('');
+
+  const handleLookup = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:3001/api/inventory/check-item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId: parseInt(lookupId), itemName: lookupName }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Item not found');
+      }
+
+      // Pre-fill values for editing
+      setItemId(data.id);
+      setItemName(data.name);
+      setCategory(data.category);
+      setPrice(data.price);
+
+      setStep(2);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditSubmit = () => {
+    onSubmit({
+      oldItemId: parseInt(lookupId),
+      newItemId: parseInt(itemId),
+      newName: itemName,
+      newCategory: category,
+      newPrice: parseFloat(price),
+    });
     onClose();
   };
-  
+
   return (
     <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded shadow-lg w-80">
-        <h3 className="text-xl font-bold mb-4">Edit Item</h3>
-        <label className="block text-gray-700 mb-1">Which item to edit:</label>
-        <input
-          type="text"
-          value={itemToEdit}
-          onChange={(e) => setItemToEdit(e.target.value)}
-          className="w-full border rounded px-2 py-1 mb-4"
-          placeholder="Enter item name"
-        />
-        <label className="block text-gray-700 mb-1">New Stock Amount:</label>
-        <input
-          type="number"
-          value={newStock}
-          onChange={(e) => setNewStock(e.target.value)}
-          className="w-full border rounded px-2 py-1 mb-4"
-          placeholder="Enter new stock amount"
-        />
-        <div className="flex justify-end">
-          <button onClick={onClose} className="mr-2 px-4 py-2 bg-gray-300 rounded">
-            Cancel
-          </button>
-          <button onClick={handleSubmit} className="px-4 py-2 bg-yellow-500 text-white rounded">
-            Save
-          </button>
-        </div>
+      <div className="bg-white p-6 rounded shadow-lg w-96">
+        {step === 1 ? (
+          <>
+            <h3 className="text-xl font-bold mb-4">Find Item to Edit</h3>
+            <label className="block text-gray-700 mb-1">Item ID:</label>
+            <input
+              type="number"
+              value={lookupId}
+              onChange={(e) => setLookupId(e.target.value)}
+              className="w-full border rounded px-2 py-1 mb-4"
+              placeholder="Enter Item ID"
+            />
+            <label className="block text-gray-700 mb-1">Item Name:</label>
+            <input
+              type="text"
+              value={lookupName}
+              onChange={(e) => setLookupName(e.target.value)}
+              className="w-full border rounded px-2 py-1 mb-4"
+              placeholder="Enter Item Name"
+            />
+            {error && <div className="text-red-500 mb-2">{error}</div>}
+            <div className="flex justify-end">
+              <button onClick={onClose} className="mr-2 px-4 py-2 bg-gray-300 rounded">Cancel</button>
+              <button
+                onClick={handleLookup}
+                disabled={loading}
+                className="px-4 py-2 bg-yellow-500 text-white rounded"
+              >
+                {loading ? 'Checking...' : 'Next'}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h3 className="text-xl font-bold mb-4">Edit Item</h3>
+            <label className="block text-gray-700 mb-1">New Item ID:</label>
+            <input
+              type="number"
+              value={itemId}
+              onChange={(e) => setItemId(e.target.value)}
+              className="w-full border rounded px-2 py-1 mb-4"
+            />
+            <label className="block text-gray-700 mb-1">New Name:</label>
+            <input
+              type="text"
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+              className="w-full border rounded px-2 py-1 mb-4"
+            />
+            <label className="block text-gray-700 mb-1">New Category:</label>
+            <input
+              type="text"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full border rounded px-2 py-1 mb-4"
+            />
+            <label className="block text-gray-700 mb-1">New Price:</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="w-full border rounded px-2 py-1 mb-4"
+            />
+            <div className="flex justify-end">
+              <button onClick={onClose} className="mr-2 px-4 py-2 bg-gray-300 rounded">Cancel</button>
+              <button onClick={handleEditSubmit} className="px-4 py-2 bg-green-500 text-white rounded">
+                Save
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -209,10 +306,10 @@ function EditItemModal({ onClose, onSubmit }) {
 
 /* Modal Component for "Delete Item" */
 function DeleteItemModal({ onClose, onSubmit }) {
-  const [itemToDelete, setItemToDelete] = useState('');
+  const [itemName, setItemName] = useState('');
   
   const handleSubmit = () => {
-    onSubmit({ itemToDelete });
+    onSubmit({ itemName });
     onClose();
   };
   
@@ -220,11 +317,11 @@ function DeleteItemModal({ onClose, onSubmit }) {
     <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded shadow-lg w-80">
         <h3 className="text-xl font-bold mb-4">Delete Item</h3>
-        <label className="block text-gray-700 mb-1">Which item to delete:</label>
+        <label className="block text-gray-700 mb-1">Item Name:</label>
         <input
           type="text"
-          value={itemToDelete}
-          onChange={(e) => setItemToDelete(e.target.value)}
+          value={itemName}
+          onChange={(e) => setItemName(e.target.value)}
           className="w-full border rounded px-2 py-1 mb-4"
           placeholder="Enter item name"
         />
@@ -255,25 +352,96 @@ export default function InventoryPage() {
   const [showEditItem, setShowEditItem] = useState(false);
   const [showDeleteItem, setShowDeleteItem] = useState(false);
 
-  const handleAddStock = (data) => {
-    console.log("Add Stock Data:", data);
-    // Process Add Stock data here (e.g., update UI or call API)
+  // Send add stock request to backend
+  const handleAddStock = async ({ item, amount }) => {
+    try {
+      const response = await fetch(`${API_BASE}/add-stock`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item, amount: parseFloat(amount) }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      loadInventory();
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
   };
 
-  const handleCreateItem = (data) => {
-    console.log("Create Item Data:", data);
-    // Process Create Item data here
+  // Send create item request to backend
+  const handleCreateItem = async ({ itemId, itemName, category, price }) => {
+    try {
+      const response = await fetch(`${API_BASE}/create-item`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId: parseInt(itemId), itemName, category, price: parseFloat(price) }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      loadInventory();
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
   };
 
-  const handleEditItem = (data) => {
-    console.log("Edit Item Data:", data);
-    // Process Edit Item data here
+  // Send edit item request to backend
+  const handleEditItem = async ({ oldItemId, newItemId, newName, newCategory, newPrice }) => {
+    try {
+      const response = await fetch(`${API_BASE}/edit-item`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          oldItemId,
+          newItemId,
+          newName,
+          newCategory,
+          newPrice
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) throw new Error(data.error || 'Failed to update item');
+  
+      loadInventory();
+    } catch (err) {
+      console.error('Edit error:', err);
+      alert('Error editing item: ' + err.message);
+    }
   };
 
-  const handleDeleteItem = (data) => {
-    console.log("Delete Item Data:", data);
-    // Process Delete Item data here
+  // Send delete item request to backend
+  const handleDeleteItem = async ({ itemName }) => {
+    try {
+      const response = await fetch(`${API_BASE}/delete-item`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemName }),
+      });
+  
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Delete failed');
+  
+      loadInventory();
+    } catch (err) {
+      alert('Error deleting item: ' + err.message);
+    }
   };
+  
+  /* Load inventory from backend */
+  const [inventoryData, setInventoryData] = useState([]);
+  const loadInventory = async () => {
+    try {
+      const response = await fetch(`${API_BASE}`);
+      const data = await response.json();
+      setInventoryData(data);
+    } catch (err) {
+      console.error('Error loading inventory:', err);
+    }
+  };
+  useEffect(() => {
+    loadInventory();
+  }, []);
 
   return (
     <div
@@ -322,13 +490,14 @@ export default function InventoryPage() {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b">
-                <td className="px-4 py-2 border border-black">Brewed Tea</td>
-                <td className="px-4 py-2 border border-black">16.0000</td>
-                <td className="px-4 py-2 border border-black">16</td>
-                <td className="px-4 py-2 border border-black">Ginger Tea</td>
-              </tr>
-              {/* Additional placeholder rows as needed */}
+              {inventoryData.map((row, idx) => (
+                <tr key={idx} className="border-b">
+                  <td className="px-4 py-2 border border-black">{row.category}</td>
+                  <td className="px-4 py-2 border border-black">{row.stock}</td>
+                  <td className="px-4 py-2 border border-black">{row.previousUsage ?? 0}</td>
+                  <td className="px-4 py-2 border border-black">{row.lowStockItems}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
