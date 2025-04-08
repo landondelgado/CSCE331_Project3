@@ -190,7 +190,7 @@ function EditItemModal({ onClose, onSubmit }) {
     setError('');
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/inventory/check-item', {
+      const response = await fetch(`${API_BASE}/check-item`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ itemId: parseInt(lookupId), itemName: lookupName }),
