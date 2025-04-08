@@ -10,6 +10,9 @@ app.use(bodyParser.json());
 // Use inventory backend files
 const path = require('path');
 
+app.use(cors());
+app.use(bodyParser.json());
+
 app.use('/api/inventory', inventoryBackend);
 
 // Serve frontend in production
