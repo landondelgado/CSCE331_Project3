@@ -57,12 +57,13 @@ function LoginPage() {
 
       <CustomerInterfaceButton />
 
-      <div className="bg-white/90 p-10 rounded-xl w-72 text-center">
-        <h2 className="mb-5 text-2xl font-semibold text-black">Log in to Cashier Register</h2>
-          {/* Google Login */}
-          <div className="mt-4">
-            <GoogleLogin onSuccess={handleGoogleLoginSuccess} onError={handleGoogleLoginError} />
-          </div>
+      <div className="bg-white/90 p-10 rounded-xl w-80 text-center">
+        <h2 className="mb-5 text-2xl font-bold text-slate-700">Log in to Cashier Register</h2>
+        <div className="h-0.5 rounded-full bg-slate-600 border-l border-gray-300"></div>
+        {/* Google Login */}
+        <div className="mt-4">
+          <GoogleLogin onSuccess={handleGoogleLoginSuccess} onError={handleGoogleLoginError} />
+        </div>
       </div>
     </div>
   );
