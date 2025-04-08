@@ -136,6 +136,17 @@ function MainMenu() {
 
 // Constructs the MenuPOS screen
 function MenuPOS() {
+    const navigate = useNavigate();
+    useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem('user'));
+    
+    if (!userData) {
+        // Redirect to login page if not logged in
+        localStorage.removeItem('user');
+        navigate('/');
+    }
+    }, []);
+    
     return (
         <div className="min-h-screen w-full bg-cover bg-center" style={{ backgroundImage: "url('./images/bobabackground.svg')" }}>
             <Header />

@@ -346,6 +346,17 @@ function DeleteItemModal({ onClose, onSubmit }) {
 
 // Main Inventory Page Component
 export default function InventoryPage() {
+  const navigate = useNavigate();
+  useEffect(() => {
+  const userData = JSON.parse(localStorage.getItem('user'));
+  
+  if (!userData || !userData.isManager) {
+      // Redirect to login page if not logged in
+      localStorage.removeItem('user');
+      navigate('/');
+  }
+  }, []);
+
   const actionButtons = [
     { label: 'Add Stock', color: 'bg-green-500 hover:bg-green-600' },
     { label: 'Create Item', color: 'bg-blue-500 hover:bg-blue-600' },

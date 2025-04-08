@@ -198,6 +198,17 @@ function HourlySales() {
 
 // Main analytics pane
 function Analytics() {
+  const navigate = useNavigate();
+  useEffect(() => {
+  const userData = JSON.parse(localStorage.getItem('user'));
+  
+  if (!userData || !userData.isManager) {
+      // Redirect to login page if not logged in
+      localStorage.removeItem('user');
+      navigate('/');
+  }
+  }, []);
+
   const [currentTab, setCurrentTab] = useState("category");
 
   return (

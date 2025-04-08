@@ -59,24 +59,10 @@ function LoginPage() {
 
       <div className="bg-white/90 p-10 rounded-xl w-72 text-center">
         <h2 className="mb-5 text-2xl font-semibold text-black">Log in to Cashier Register</h2>
-        <form onSubmit={goToPOSMenu} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Username"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-base"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-base"
-          />
-          <MediumButton>Login</MediumButton>
-
-          {/* Google Login button below the main login */}
+          {/* Google Login */}
           <div className="mt-4">
             <GoogleLogin onSuccess={handleGoogleLoginSuccess} onError={handleGoogleLoginError} />
           </div>
-        </form>
       </div>
     </div>
   );
