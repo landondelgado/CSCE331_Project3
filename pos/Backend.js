@@ -8,7 +8,16 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Use inventory backend files
+const path = require('path');
+
 app.use('/api/inventory', inventoryBackend);
+
+// Serve frontend in production
+app.use(express.static(path.join(__dirname, 'client/build')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/build/index.html'));
+});
 
 // Open backend on port 3001
 const PORT = process.env.PORT || 3001;
