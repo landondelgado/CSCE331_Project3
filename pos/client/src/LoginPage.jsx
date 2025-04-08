@@ -62,7 +62,7 @@ function LoginPage() {
         <div className="h-0.5 rounded-full bg-slate-600 border-l border-gray-300"></div>
         {/* Google Login */}
         <div className="mt-4">
-          <GoogleLogin onSuccess={handleGoogleLoginSuccess} onError={handleGoogleLoginError} />
+          <GoogleLogin onSuccess={handleGoogleLoginSuccess} onError={handleGoogleLoginError} auto_select={false}/>
         </div>
       </div>
     </div>
