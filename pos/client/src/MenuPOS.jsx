@@ -19,12 +19,16 @@ function Header() {
         return () => clearInterval(interval);
     }, []);
 
-    const navItems = [
-        { label: 'Home', icon: '/images/home.png', route: '/menupos' },
-        { label: 'Analytics', icon: '/images/analytics.png', route: '/analytics' },
-        { label: 'Inventory', icon: '/images/inventory.png', route: '/inventory' },
-    ];
+    const user = JSON.parse(localStorage.getItem('user'));
 
+    const navItems = [
+    { label: 'Home', icon: '/images/home.png', route: '/menupos' },
+    ...(user?.isManager ? [
+        { label: 'Analytics', icon: '/images/analytics.png', route: '/analytics' },
+        { label: 'Inventory', icon: '/images/inventory.png', route: '/inventory' }
+    ] : [])
+    ];
+    
     return (
         <div className="relative flex flex-row justify-center items-center bg-cover bg-center h-20 py-6 px-8">
             {/* Nav Buttons */}
@@ -48,15 +52,18 @@ function Header() {
 
             {/* Time + Logout */}
             <div className="absolute right-6 top-5 flex items-center space-x-4">
-                <button
-                    className="bg-red-500 text-lg sm:text-xl font-semibold text-white rounded-full px-4 py-1 shadow"
-                    onClick={() => navigate('/')}
+            <button
+                className="bg-red-500 text-lg sm:text-xl font-semibold text-white rounded-full px-4 py-1 shadow"
+                onClick={() => {
+                    if (window.google?.accounts?.id) {
+                    window.google.accounts.id.disableAutoSelect();
+                    }
+                    localStorage.removeItem('user');
+                    navigate('/');
+                }}
                 >
-                    Logout
-                </button>
-                <div className="bg-slate-600 py-2 px-4 rounded-full text-white text-2xl font-bold">
-                    {time}
-                </div>
+                Logout
+            </button>
             </div>
         </div>
     );

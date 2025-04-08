@@ -52,14 +52,17 @@ function InventoryHeader() {
       {/* Time + Logout on Right */}
       <div className="absolute right-6 top-5 flex items-center space-x-4">
         <button
-          onClick={() => navigate('/')}
-          className="bg-red-500 text-lg font-semibold text-white rounded-full px-4 py-1 shadow hover:scale-105 transition-transform"
-        >
-          Logout
+            className="bg-red-500 text-lg sm:text-xl font-semibold text-white rounded-full px-4 py-1 shadow"
+            onClick={() => {
+                if (window.google?.accounts?.id) {
+                window.google.accounts.id.disableAutoSelect();
+                }
+                localStorage.removeItem('user');
+                navigate('/');
+            }}
+            >
+            Logout
         </button>
-        <div className="bg-slate-600 py-2 px-4 rounded-full text-white text-2xl font-bold">
-          {time}
-        </div>
       </div>
     </div>
   );

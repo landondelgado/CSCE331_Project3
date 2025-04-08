@@ -15,6 +15,9 @@ app.use(bodyParser.json());
 
 app.use('/api/inventory', inventoryBackend);
 
+const authRoutes = require('./auth'); // if saved in auth.js
+app.use('/api/auth', authRoutes);
+
 // Serve frontend in production
 app.use(express.static(path.join(__dirname, 'client/build')));
 
