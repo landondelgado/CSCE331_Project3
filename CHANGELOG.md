@@ -1,4 +1,24 @@
 CHANGELOG
+[Release 2] - 2025-04-14
+
+ADDED
+- Backend.js
+- TranslateBackend.js
+- analyticsBackend.js
+- auth.js
+- inventoryBackend.js
+- kioskBackend.js
+- start.js
+- .env
+
+CHANGED
+- InventoryPage.jsx
+- LoginPage.jsx
+- Menu.jsx
+- MenuPOS.jsx
+- analytics.jsx
+
+REMOVED
 
 [Release 1] - 2025-03-30
 
