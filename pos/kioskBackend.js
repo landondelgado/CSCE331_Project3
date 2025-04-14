@@ -19,7 +19,7 @@ router.get('/menu-items/:category', async (req, res) => {
   let query = 'SELECT name, id, price FROM Menu WHERE category = $1';
   let values = [category];
 
-  // Special case mappings
+  //Get top menu items
   const categoryMap = {
     "TOP ORDER": `SELECT itemname AS name, itemid AS id, saleprice AS price, COUNT(*) AS sales 
                   FROM Sales GROUP BY itemname, itemid, saleprice 
@@ -36,7 +36,7 @@ router.get('/menu-items/:category', async (req, res) => {
   };
 
   if (categoryMap[category]) {
-    query = categoryMap[category];
+    query = categoryMap[category]; //get the items
     values = []; // not using $1 placeholders
   }
 
@@ -49,7 +49,7 @@ router.get('/menu-items/:category', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-router.post('/checkout', async (req, res) => {
+router.post('/checkout', async (req, res) => { //add checkout/transaction to the database
   const order = req.body.order;
 
   if (!order || order.length === 0) {
