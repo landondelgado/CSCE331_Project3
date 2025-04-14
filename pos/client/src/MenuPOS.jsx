@@ -2,12 +2,12 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE =
+const API_BASE = //connect frontend to backend
   process.env.NODE_ENV === 'development'
     ? 'http://localhost:3001/api/menupos'
     : '/api/menupos';
 
-function Header() {
+function Header() { //sets up navbar at the top
   const [time, setTime] = useState(getCurrentTime());
   const navigate = useNavigate();
 
@@ -72,7 +72,7 @@ function Header() {
   );
 }
 
-function MenuCategory({ icon, label, color = "text-black", onClick, showPopup, menuItems = [], onItemSelect}) {
+function MenuCategory({ icon, label, color = "text-black", onClick, showPopup, menuItems = [], onItemSelect}) { //sorts menu items by category
   return (
     <div className="relative flex flex-col items-center w-full">
       <button
@@ -85,7 +85,7 @@ function MenuCategory({ icon, label, color = "text-black", onClick, showPopup, m
         </div>
       </button>
 
-      {showPopup && (
+      {showPopup && ( //puts items as buttons in popups
         <div className="absolute top-full mt-2 bg-white border border-gray-400 shadow-md rounded-md p-6 z-50 w-[16rem] max-h-[20rem] overflow-auto">
         <p className="text-black font-semibold mb-2">{label} Items</p>
         <div className="flex flex-col space-y-2">
@@ -109,7 +109,7 @@ function MenuCategory({ icon, label, color = "text-black", onClick, showPopup, m
   );
 }
 
-function OrderSummary({ orderItems = [], onCheckout }) {
+function OrderSummary({ orderItems = [], onCheckout }) { //shows and documents current transaction
     const total = orderItems.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2);
   
     return (
@@ -141,7 +141,7 @@ function OrderSummary({ orderItems = [], onCheckout }) {
   }
   
 
-function MainMenu({ onAddToOrder }) {
+function MainMenu({ onAddToOrder }) { //documents transaction and combines other classes
     const [popupCategory, setPopupCategory] = useState("");
     const [menuItemsByCategory, setMenuItemsByCategory] = useState({});
     const handleCategoryClick = (categoryLabel) => {
@@ -207,18 +207,18 @@ function MainMenu({ onAddToOrder }) {
     const [orderItems, setOrderItems] = useState([]);
     const navigate = useNavigate();
   
-    useEffect(() => {
+    useEffect(() => { //uses auth
       const userData = JSON.parse(localStorage.getItem('user'));
       if (!userData) {
         localStorage.removeItem('user');
         navigate('/');
       }
     }, []);
-    const handleAddToOrder = (item) => {
+    const handleAddToOrder = (item) => { //stores the order
       setOrderItems((prev) => [...prev, item]);
     };
     
-    const handleClearOrder = () => {
+    const handleClearOrder = () => { //clears order when transaction complete
       setOrderItems([]); // Clear the order
     };
   
