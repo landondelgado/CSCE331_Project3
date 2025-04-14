@@ -1,4 +1,5 @@
 CHANGELOG
+
 [Release 2] - 2025-04-14
 
 ADDED
