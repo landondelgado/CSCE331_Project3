@@ -18,7 +18,6 @@ app.use(bodyParser.json());
 
 app.use('/api/inventory', inventoryBackend);
 app.use('/api/menupos', kioskBackend);
-const authRoutes = require('./auth'); // if saved in auth.js
 app.use('/api/analytics', analyticsBackend);
 app.use('/api/auth', authRoutes);
 app.use('/api/translate', translateBackend); // This endpoint now just returns a stub response
