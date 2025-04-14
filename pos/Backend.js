@@ -1,14 +1,17 @@
+// Backend.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
+require('dotenv').config();
+
 const inventoryBackend = require('./inventoryBackend');
 const kioskBackend = require('./kioskBackend');
-const app = express();
-app.use(cors());
-app.use(bodyParser.json());
+const analyticsBackend = require('./analyticsBackend');
+const authRoutes = require('./auth');
+const translateBackend = require('./TranslateBackend'); // Stub endpoint
 
-// Use inventory backend files
-const path = require('path');
+const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -16,16 +19,15 @@ app.use(bodyParser.json());
 app.use('/api/inventory', inventoryBackend);
 app.use('/api/menupos', kioskBackend);
 const authRoutes = require('./auth'); // if saved in auth.js
+app.use('/api/analytics', analyticsBackend);
 app.use('/api/auth', authRoutes);
+app.use('/api/translate', translateBackend); // This endpoint now just returns a stub response
 
-// Serve frontend in production
 app.use(express.static(path.join(__dirname, 'client/build')));
-
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'client/build/index.html'));
 });
 
-// Open backend on port 3001
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
