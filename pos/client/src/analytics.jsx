@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-//header 
+// API base URL
+const API_BASE =
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3001/api/analytics'
+    : '/api/analytics';
+
+// Header Component
 function Header() {
   const navigate = useNavigate();
   const [time, setTime] = useState(getCurrentTime());
@@ -16,7 +22,6 @@ function Header() {
     return () => clearInterval(interval);
   }, []);
 
-  //icons
   const navItems = [
     { label: 'Home', icon: '/images/home.png', route: '/menupos' },
     { label: 'Analytics', icon: '/images/analytics.png', route: '/analytics' },
@@ -47,16 +52,16 @@ function Header() {
       {/* Time + Logout */}
       <div className="absolute right-6 top-5 flex items-center space-x-4">
         <button
-            className="bg-red-500 text-lg sm:text-xl font-semibold text-white rounded-full px-4 py-1 shadow"
-            onClick={() => {
-                if (window.google?.accounts?.id) {
-                window.google.accounts.id.disableAutoSelect();
-                }
-                localStorage.removeItem('user');
-                navigate('/');
-            }}
-            >
-            Logout
+          className="bg-red-500 text-lg sm:text-xl font-semibold text-white rounded-full px-4 py-1 shadow"
+          onClick={() => {
+            if (window.google?.accounts?.id) {
+              window.google.accounts.id.disableAutoSelect();
+            }
+            localStorage.removeItem('user');
+            navigate('/');
+          }}
+        >
+          Logout
         </button>
         <div className="bg-slate-600 py-2 px-4 rounded-full text-white text-2xl font-bold">
           {time}
@@ -66,12 +71,22 @@ function Header() {
   );
 }
 
-// Summary Tab
+// Category Summary Tab
 function CategorySummary() {
-  const data = [
-    { category: "Beverages", salesQty: 50, sales: 250.0, topSeller: "Coffee", topSellerPct: 30.0 },
-    { category: "Food", salesQty: 30, sales: 150.0, topSeller: "Burger", topSellerPct: 40.0 },
-  ];
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/category-summary`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch category summary');
+        return res.json();
+      })
+      .then((json) => {
+        console.log("Category Summary Data:", json);
+        setData(json);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   return (
     <div className="overflow-x-auto bg-white bg-opacity-80 rounded-lg p-4">
@@ -89,10 +104,10 @@ function CategorySummary() {
           {data.map((row, idx) => (
             <tr key={idx} className="border-b">
               <td className="px-4 py-2">{row.category}</td>
-              <td className="px-4 py-2">{row.salesQty}</td>
-              <td className="px-4 py-2">${row.sales.toFixed(2)}</td>
-              <td className="px-4 py-2">{row.topSeller}</td>
-              <td className="px-4 py-2">{row.topSellerPct.toFixed(2)}%</td>
+              <td className="px-4 py-2">{row["Sales Qty"]}</td>
+              <td className="px-4 py-2">${parseFloat(row.Sales).toFixed(2)}</td>
+              <td className="px-4 py-2">{row["Top Seller"]}</td>
+              <td className="px-4 py-2">{parseFloat(row["Top Seller %Sales"]).toFixed(2)}%</td>
             </tr>
           ))}
         </tbody>
@@ -101,18 +116,23 @@ function CategorySummary() {
   );
 }
 
-// Product usage tab
+// Product Usage Tab
 function ProductUsage() {
   const [start, setStart] = useState("2025-03-01 10:00:00");
   const [end, setEnd] = useState("2025-03-01 14:00:00");
-
-  const data = [
-    { ingredient: "Coffee", totalUsed: 100, unit: "grams" },
-    { ingredient: "Milk", totalUsed: 200, unit: "ml" },
-  ];
+  const [data, setData] = useState([]);
 
   const handleLoad = () => {
-    alert(`Load data from ${start} to ${end}`);
+    fetch(`${API_BASE}/product-usage?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch product usage data');
+        return res.json();
+      })
+      .then((json) => {
+        console.log("Product Usage Data:", json);
+        setData(json);
+      })
+      .catch((err) => console.error(err));
   };
 
   return (
@@ -152,8 +172,8 @@ function ProductUsage() {
           <tbody>
             {data.map((row, idx) => (
               <tr key={idx} className="border-b">
-                <td className="px-4 py-2">{row.ingredient}</td>
-                <td className="px-4 py-2">{row.totalUsed}</td>
+                <td className="px-4 py-2">{row.ingredient_name}</td>
+                <td className="px-4 py-2">{parseFloat(row.total_used).toFixed(2)}</td>
                 <td className="px-4 py-2">{row.unit}</td>
               </tr>
             ))}
@@ -164,13 +184,22 @@ function ProductUsage() {
   );
 }
 
-// Hourly sales tab
+// Hourly Sales Tab
 function HourlySales() {
-  const data = [
-    { hour: "11:00", salesCount: 5, totalRevenue: 50.0 },
-    { hour: "12:00", salesCount: 8, totalRevenue: 80.0 },
-    { hour: "13:00", salesCount: 10, totalRevenue: 100.0 },
-  ];
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/hourly-sales`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch hourly sales data');
+        return res.json();
+      })
+      .then((json) => {
+        console.log("Hourly Sales Data:", json);
+        setData(json);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   return (
     <div className="overflow-x-auto bg-white bg-opacity-80 rounded-lg p-4">
@@ -185,9 +214,9 @@ function HourlySales() {
         <tbody>
           {data.map((row, idx) => (
             <tr key={idx} className="border-b">
-              <td className="px-4 py-2">{row.hour}</td>
-              <td className="px-4 py-2">{row.salesCount}</td>
-              <td className="px-4 py-2">${row.totalRevenue.toFixed(2)}</td>
+              <td className="px-4 py-2">{`${row.hour}:00`}</td>
+              <td className="px-4 py-2">{row.sales_count}</td>
+              <td className="px-4 py-2">${parseFloat(row.total_revenue).toFixed(2)}</td>
             </tr>
           ))}
         </tbody>
@@ -196,18 +225,16 @@ function HourlySales() {
   );
 }
 
-// Main analytics pane
+// Main Analytics Component
 function Analytics() {
   const navigate = useNavigate();
   useEffect(() => {
-  const userData = JSON.parse(localStorage.getItem('user'));
-  
-  if (!userData || !userData.isManager) {
-      // Redirect to login page if not logged in
+    const userData = JSON.parse(localStorage.getItem('user'));
+    if (!userData || !userData.isManager) {
       localStorage.removeItem('user');
       navigate('/');
-  }
-  }, []);
+    }
+  }, [navigate]);
 
   const [currentTab, setCurrentTab] = useState("category");
 
@@ -246,7 +273,7 @@ function Analytics() {
             Hourly Sales
           </button>
         </div>
-        {/* Render tab content */}
+        {/* Render Selected Tab */}
         {currentTab === "category" && <CategorySummary />}
         {currentTab === "product" && <ProductUsage />}
         {currentTab === "hourly" && <HourlySales />}
