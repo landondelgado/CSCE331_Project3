@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const API_BASE =
   process.env.NODE_ENV === 'development'
     ? 'http://localhost:3001/api/menupos'
-    : '/api/menupos';
+    : '/api/menupos'; //connects backend to frontend
 // Creates header with logo, navigate buttons, time, and logout
 function Header() {
   const [time, setTime] = useState(getCurrentTime());
@@ -176,7 +176,7 @@ function Header() {
 }
 
 // --------------------------------
-// Generalized class to make menu category items
+// Sorts the items by category
 function MenuCategory({ icon, label, color = "text-black", onClick, showPopup, menuItems = [], onItemSelect}) {
     return (
         <div className="relative flex flex-col items-center w-full">
@@ -190,7 +190,7 @@ function MenuCategory({ icon, label, color = "text-black", onClick, showPopup, m
             </div>
           </button>
     
-          {showPopup && (
+          {showPopup && ( //makes popup that categorizes menu items
             <div className="absolute top-full mt-2 bg-white border border-gray-400 shadow-md rounded-md p-6 z-50 w-[16rem] max-h-[20rem] overflow-auto">
             <p className="text-black font-semibold mb-2">{label} Items</p>
             <div className="flex flex-col space-y-2">
@@ -213,7 +213,7 @@ function MenuCategory({ icon, label, color = "text-black", onClick, showPopup, m
         </div>
       );
 }
-// Class to make order summary panel
+// Transaction log
 function OrderSummary({ orderItems = [], onCheckout }) {
     const total = orderItems.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2);
   
@@ -225,7 +225,7 @@ function OrderSummary({ orderItems = [], onCheckout }) {
             {orderItems.map((item, index) => (
               <div key={index} className="flex justify-between text-sm">
                 <span>{item.name}</span>
-                <span>${parseFloat(item.price).toFixed(2)}</span>
+                <span>${parseFloat(item.price).toFixed(2)}</span> //adds item and price to order
               </div>
             ))}
           </div>
@@ -239,7 +239,7 @@ function OrderSummary({ orderItems = [], onCheckout }) {
           >
             Checkout
           </button>
-          <p className="text-right font-semibold mt-2">Total: <span>${total}</span></p>
+          <p className="text-right font-semibold mt-2">Total: <span>${total}</span></p> //total of transaction
         </div>
       </div>
     );
@@ -260,7 +260,7 @@ function MainMenu({ onAddToOrder }) {
     
       useEffect(() => {
         if (popupCategory && !menuItemsByCategory[popupCategory]) {
-          fetch(`${API_BASE}/menu-items/${encodeURIComponent(popupCategory)}`)
+          fetch(`${API_BASE}/menu-items/${encodeURIComponent(popupCategory)}`) //gets the query of the items
             .then((response) => response.json())
             .then((data) => {
               console.log(`Fetched items for ${popupCategory}:`, data);
@@ -275,7 +275,7 @@ function MainMenu({ onAddToOrder }) {
         }
       }, [popupCategory]);
     
-      const menuCategories = [
+      const menuCategories = [ //images and names
         { icon: "/images/brewed_tea.jpg", label: "Brewed Tea", color: "text-amber-900" },
         { icon: "/images/milk_tea.jpg", label: "Milk Tea" },
         { icon: "/images/fruit_tea.jpg", label: "Fruit Tea", color: "text-fuchsia-500" },
@@ -298,7 +298,7 @@ function MainMenu({ onAddToOrder }) {
                   key={index}
                   {...item}
                   onClick={() => handleCategoryClick(item.label)}
-                  showPopup={popupCategory === item.label}
+                  showPopup={popupCategory === item.label} //sets all the stuff
                   menuItems={menuItemsByCategory[item.label] || []}
                   onItemSelect={onAddToOrder}
                 />
