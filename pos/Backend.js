@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const inventoryBackend = require('./inventoryBackend');
-
+const kioskBackend = require('./kioskBackend');
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -14,7 +14,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use('/api/inventory', inventoryBackend);
-
+app.use('/api/menupos', kioskBackend);
 const authRoutes = require('./auth'); // if saved in auth.js
 app.use('/api/auth', authRoutes);
 
