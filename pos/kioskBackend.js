@@ -11,12 +11,36 @@ const pool = new Pool({
   port: 5432,
 });
 
+router.get('/menu-items/toppings', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        Inventory.itemid AS id, 
+        Inventory.itemname AS name, 
+        Inventory.category, 
+        Inventory.stock, 
+        Menu.price
+      FROM Inventory
+      JOIN Menu ON Inventory.itemid = Menu.id
+      WHERE LOWER(Menu.category) = 'toppings'
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Toppings fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch toppings' });
+  }
+});
+
 // Route to get menu items by category
 router.get('/menu-items/:category', async (req, res) => {
   const category = req.params.category;
 
   // Default query for a category
-  let query = 'SELECT name, id, price FROM Menu WHERE category = $1';
+  let query = `SELECT Menu.name, Menu.id, Menu.price, Inventory.stock
+              FROM Menu
+              JOIN Inventory ON Menu.id = Inventory.itemid
+              WHERE Menu.category = $1`;
+              
   let values = [category];
 
   //Get top menu items
@@ -49,7 +73,8 @@ router.get('/menu-items/:category', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-router.post('/checkout', async (req, res) => { //add checkout/transaction to the database
+
+router.post('/checkout', async (req, res) => {
   const order = req.body.order;
 
   if (!order || order.length === 0) {
@@ -68,30 +93,60 @@ router.post('/checkout', async (req, res) => { //add checkout/transaction to the
       UPDATE Inventory SET stock = stock - 1 WHERE itemid = $1
     `;
 
+    const fetchCategoryQuery = `SELECT category FROM Inventory WHERE itemid = $1`;
+
     const customerId = Math.floor(Math.random() * 1000) + 9000;
 
     for (const item of order) {
+      // Determine the item's category
+      let category = item.category;
+      if (!category) {
+        const catResult = await client.query(fetchCategoryQuery, [item.id]);
+        category = catResult.rows[0]?.category || 'Uncategorized';
+      }
+
+      // Insert main item sale
       await client.query(insertSaleQuery, [
         item.id,
         item.name,
-        item.category,
-        item.price,
+        category,
+        parseFloat(item.basePrice ?? item.price),
         customerId,
       ]);
-
       await client.query(updateInventoryQuery, [item.id]);
+      console.log(`Added sale for item: ${item.name}`);
 
-      console.log(`Checked out item: ${item.name}`);
+      // Insert topping sales if any
+      if (Array.isArray(item.toppings)) {
+        for (const topping of item.toppings) {
+          if (!topping.id || !topping.name || !topping.price) {
+            console.warn('Skipping topping due to missing data:', topping);
+            continue;
+          }
+      
+          await client.query(insertSaleQuery, [
+            parseInt(topping.id),
+            topping.name,
+            'Toppings',
+            parseFloat(topping.price),
+            customerId,
+          ]);
+      
+          const invResult = await client.query(updateInventoryQuery, [parseInt(topping.id)]);
+          console.log(`Topping inventory updated (${topping.name}) - rows affected: ${invResult.rowCount}`);
+        }
+      }
     }
 
     await client.query('COMMIT');
     res.json({ message: 'Checkout successful' });
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Checkout error:', error);
+    console.error('Checkout failed:', error);
     res.status(500).json({ error: 'Checkout failed' });
   } finally {
     client.release();
   }
 });
+
 module.exports = router;

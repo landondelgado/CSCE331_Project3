@@ -72,7 +72,203 @@ function Header() { //sets up navbar at the top
   );
 }
 
-function MenuCategory({ icon, label, color = "text-black", onClick, showPopup, menuItems = [], onItemSelect}) { //sorts menu items by category
+// Modal for Category 
+function CategoryModal({ isOpen, onClose, title, items = [], onItemSelect }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex justify-center items-center">
+      <div className="relative bg-gradient-to-br from-white to-gray-100 w-[90%] h-[90%] rounded-xl shadow-xl p-8 overflow-y-auto">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-black text-3xl font-bold"
+        >
+          &times;
+        </button>
+
+        {/* Category Title */}
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">{title}</h2>
+
+        {/* Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4">
+        {items.map((item) => {
+          const outOfStock = item.stock <= 0;
+          return (
+            <div
+              key={item.id}
+              className={`bg-white rounded-2xl shadow-md overflow-hidden transition cursor-pointer ${
+                outOfStock ? 'opacity-50 grayscale pointer-events-none' : 'hover:shadow-xl'
+              }`}
+              onClick={() => !outOfStock && onItemSelect(item)}
+            >
+              <div className="w-full h-[400px] overflow-hidden">
+                <img
+                  src={`/images/${item.name.toLowerCase().replace(/ /g, '_')}.png`}
+                  alt={item.name}
+                  className="w-full h-full object-cover object-center"
+                  onError={(e) => (e.target.src = '/images/default.png')}
+                />
+              </div>
+              <div className="p-4 text-center">
+                <h3
+                  className={`text-base font-semibold text-gray-800 ${
+                    outOfStock ? 'line-through' : ''
+                  }`}
+                >
+                  {item.name}
+                </h3>
+                <p className="text-sm text-gray-600">${parseFloat(item.price).toFixed(2)}</p>
+                {outOfStock && (
+                  <p className="text-red-500 text-xs font-semibold">Out of Stock</p>
+                )}
+              </div>
+            </div>
+          );
+        })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Modal for customizing an item
+function CustomizeItemModal({ item, isOpen, onClose, onAddToCart, editing }) {
+  const [toppings, setToppings] = useState([]);
+  const [selectedToppings, setSelectedToppings] = useState([]);
+
+  // Retrieve toppings from database
+  useEffect(() => {
+    if (isOpen) {
+      fetch(`${API_BASE}/menu-items/toppings`)
+        .then((res) => res.json())
+        .then((data) => setToppings(data))
+        .catch((err) => console.error('Toppings fetch error:', err));
+    }
+  }, [isOpen]);
+
+  // Handles selecting toppings
+  useEffect(() => {
+    if (isOpen && item?.toppings) {
+      setSelectedToppings(item.toppings || []);
+    } else if (!isOpen) {
+      setSelectedToppings([]);
+    }
+  }, [isOpen, item]);
+
+  // Adds and removes toppings from selected toppings
+  const toggleTopping = (topping) => {
+    setSelectedToppings((prev) =>
+      prev.some((t) => t.id === topping.id)
+        ? prev.filter((t) => t.id !== topping.id)
+        : [...prev, topping]
+    );
+  };
+
+  // Builds full item with selected toppings and calculated price, then adds it to the cart
+  const handleAdd = () => {
+    const totalPrice =
+      parseFloat(item.basePrice ?? item.price) +
+      selectedToppings.reduce((sum, t) => sum + parseFloat(t.price), 0);
+
+    const fullItem = {
+      ...item,
+      basePrice: parseFloat(item.basePrice ?? item.price),
+      toppings: selectedToppings,
+      price: totalPrice.toFixed(2),
+    };
+    onAddToCart(fullItem);
+    onClose();
+  };
+
+  if (!isOpen || !item) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center">
+      <div className="bg-white rounded-2xl shadow-xl w-[90%] max-w-3xl p-6 flex gap-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-2xl font-bold text-gray-500 hover:text-black"
+        >
+          &times;
+        </button>
+
+        {/* Item Image and Description */}
+        <div className="flex-1">
+          <img
+            src={`/images/${item.name.toLowerCase().replace(/ /g, '_')}.png`}
+            alt={item.name}
+            className="w-full h-400 object-cover rounded-xl"
+            onError={(e) => (e.target.src = '/images/default.png')}
+          />
+          <p className="text-center mt-4 font-semibold">{item.name}</p>
+          <p className="text-center text-gray-600 text-sm">
+            Customize your drink with toppings
+          </p>
+        </div>
+
+        {/* Toppings */}
+        <div className="flex-1">
+          <h2 className="text-xl font-bold text-center mb-4">Toppings</h2>
+          <div className="space-y-3 max-h-[500px] overflow-y-auto">
+          {toppings.map((topping) => {
+            const selected = selectedToppings.some((t) => t.id === topping.id);
+            const outOfStock = topping.stock <= 0;
+
+            return (
+              <div
+                key={topping.id}
+                className={`flex items-center justify-between px-4 py-2 rounded-lg shadow-sm ${
+                  outOfStock ? 'bg-gray-200 opacity-50' : 'bg-gray-100'
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                  <span
+                    className={`font-medium text-gray-800 ${
+                      outOfStock ? 'line-through' : ''
+                    }`}
+                  >
+                    {topping.name}
+                  </span>
+                  <span className="text-gray-600 text-sm sm:text-base">
+                    ${parseFloat(topping.price).toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-center h-full">
+                  {!outOfStock && (
+                    <button
+                      onClick={() => toggleTopping(topping)}
+                      className={`w-8 h-8 flex items-center justify-center rounded-full text-white text-[20px] font-bold leading-[0] p-0 ${
+                        selected
+                          ? 'bg-red-500 hover:bg-red-600'
+                          : 'bg-green-500 hover:bg-green-600'
+                      }`}
+                    >
+                      {selected ? '−' : '+'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          </div>
+
+          {/* Add to Cart/Update Item Button */}
+          <button
+            onClick={handleAdd}
+            className="bg-green-500 text-white w-full mt-4 py-2 rounded-md text-lg font-semibold"
+          >
+            {editing ? 'Update Item' : 'Add to Cart'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Sorts menu items by category
+function MenuCategory({ icon, label, color = "text-black", onClick, showPopup, menuItems = [], onItemSelect}) { 
   return (
     <div className="relative flex flex-col items-center w-full">
       <button
@@ -109,133 +305,261 @@ function MenuCategory({ icon, label, color = "text-black", onClick, showPopup, m
   );
 }
 
-function OrderSummary({ orderItems = [], onCheckout }) { //shows and documents current transaction
-    const total = orderItems.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2);
-  
-    return (
-      <div className="bg-white w-full max-w-[20%] rounded-2xl shadow border border-blue-300 p-4 flex flex-col justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-center mb-2 border-b pb-2">Order</h2>
-          <div className="space-y-2">
-            {orderItems.map((item, index) => (
-              <div key={index} className="flex justify-between text-sm">
-                <span>{item.name}</span>
-                <span>${parseFloat(item.price).toFixed(2)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div>
-          <p className="text-center text-red-600 text-sm mt-4 mb-2">EDIT ORDER</p>
-          <button className="bg-gray-200 w-full py-2 rounded-md mb-2">Gift Card</button>
-          <button
-            className="bg-green-500 text-white w-full py-2 rounded-md font-semibold"
-            onClick={onCheckout}
+// Shows and documents current transaction
+function OrderSummary({ orderItems = [], onCheckout, onEditItem, onRemoveItem }) { 
+  const total = orderItems.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2);
+
+  return (
+    <div className="bg-white w-full max-w-[20%] rounded-2xl shadow border border-blue-300 p-4 flex flex-col justify-between">
+      <div>
+        <h2 className="text-lg font-semibold text-center mb-2 border-b pb-2">Order</h2>
+        {/* Items */}
+        <div className="flex-grow overflow-y-auto max-h-[60vh]">
+        {orderItems.map((item, index) => (
+          <div
+            key={index}
+            className="bg-white border border-gray-200 rounded-xl shadow p-3 flex gap-4 items-center"
           >
-            Checkout
-          </button>
-          <p className="text-right font-semibold mt-2">Total: <span>${total}</span></p>
+            <img
+              src={`/images/${item.name.toLowerCase().replace(/ /g, '_')}.png`}
+              alt={item.name}
+              className="w-24 h-full object-cover rounded-md"
+              onError={(e) => (e.target.src = '/images/default.png')}
+            />
+
+            <div className="flex flex-col flex-1">
+              <span className="font-bold text-slate-700 text-lg">{item.name}</span>
+              <span className="text-black text-md">${parseFloat(item.price).toFixed(2)}</span>
+              {item.toppings?.length > 0 && (
+                <span className="text-gray-600 text-sm">{item.toppings.map(t => t.name).join(', ')}</span>
+              )}
+              <div className="flex gap-2 mt-2">
+                <button
+                  className="bg-green-500 text-white px-4 py-1 rounded-full"
+                  onClick={() => onEditItem(index)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="bg-red-500 text-white px-4 py-1 rounded-full"
+                  onClick={() => onRemoveItem(index)}
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
         </div>
       </div>
-    );
-  }
-  
 
-function MainMenu({ onAddToOrder }) { //documents transaction and combines other classes
-    const [popupCategory, setPopupCategory] = useState("");
-    const [menuItemsByCategory, setMenuItemsByCategory] = useState({});
-    const handleCategoryClick = (categoryLabel) => {
-      if (popupCategory === categoryLabel) {
-        setPopupCategory(""); // Close if already open
+      {/* Gift Card and Checkout Buttons */}
+      <div>
+        <button className="bg-gray-200 w-full py-2 rounded-md mb-2">Gift Card</button>
+        <button
+          className="bg-green-500 text-white w-full py-2 rounded-md font-semibold"
+          onClick={onCheckout}
+        >
+          Checkout
+        </button>
+        <p className="text-right font-semibold mt-2">Total: <span>${total}</span></p>
+      </div>
+    </div>
+  );
+}
+
+// Renders Menu Panel
+function MainMenu({ onAddToOrder }) {
+  const [popupCategory, setPopupCategory] = useState("");
+  const [menuItemsByCategory, setMenuItemsByCategory] = useState({});
+  const [modalOpen, setModalOpen] = useState(false);
+  const [customizeModalOpen, setCustomizeModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const handleCategoryClick = (categoryLabel) => {
+    if (popupCategory === categoryLabel) {
+      setModalOpen(false);
+      setPopupCategory("");
+    } else {
+      setPopupCategory(categoryLabel);
+      setModalOpen(true);
+    }
+  };
+
+  const handleItemClick = (item) => {
+    setSelectedItem(item);
+    setCustomizeModalOpen(true);
+    setModalOpen(false); // ✅ Close CategoryModal
+  };
+
+  useEffect(() => {
+    if (popupCategory && !menuItemsByCategory[popupCategory]) {
+      fetch(`${API_BASE}/menu-items/${encodeURIComponent(popupCategory)}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setMenuItemsByCategory((prev) => ({
+            ...prev,
+            [popupCategory]: data,
+          }));
+        })
+        .catch((error) => {
+          console.error("Error fetching menu items:", error);
+        });
+    }
+  }, [popupCategory]);
+
+  const menuCategories = [
+    { icon: "/images/brewed_tea.jpg", label: "Brewed Tea", color: "text-amber-900" },
+    { icon: "/images/milk_tea.jpg", label: "Milk Tea" },
+    { icon: "/images/fruit_tea.jpg", label: "Fruit Tea", color: "text-fuchsia-500" },
+    { icon: "/images/fresh_milk.jpg", label: "Fresh Milk" },
+    { icon: "/images/ice_blended.jpg", label: "Ice Blended", color: "text-cyan-500" },
+    { icon: "/images/creama.jpg", label: "Creama", color: "text-amber-300" },
+    { icon: "/images/tea_mojito.jpg", label: "Tea Mojito", color: "text-green-500" },
+    { icon: "/images/new.png", label: "New", color: "text-yellow-400" },
+    { icon: "/images/first.png", label: "TOP ORDER", color: "text-cyan-500" },
+    { icon: "/images/second.png", label: "2nd TOP ORDER", color: "text-blue-900" },
+    { icon: "/images/third.png", label: "3rd TOP ORDER", color: "text-blue-400" },
+    { icon: "/images/fourth.png", label: "4th TOP ORDER", color: "text-red-500" },
+  ];
+
+  return (
+    <>
+      <div className="bg-white rounded-3xl p-6 w-full max-w-[80%] flex-grow shadow-lg flex flex-col justify-between">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {menuCategories.map((item, index) => (
+            <MenuCategory
+              key={index}
+              {...item}
+              onClick={() => handleCategoryClick(item.label)}
+            />
+          ))}
+        </div>
+      </div>
+
+      <CategoryModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={popupCategory}
+        items={menuItemsByCategory[popupCategory] || []}
+        onItemSelect={handleItemClick}
+      />
+
+      <CustomizeItemModal
+        item={selectedItem}
+        isOpen={customizeModalOpen}
+        onClose={() => {
+          setCustomizeModalOpen(false);
+        }}
+        onAddToCart={onAddToOrder}
+      />
+    </>
+  );
+}
+
+// Renders full POS menu screen
+function MenuPOS() {
+  const [orderItems, setOrderItems] = useState([]);
+  const [customizeModalOpen, setCustomizeModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
+  const navigate = useNavigate();
+
+  // For logout button
+  useEffect(() => { //uses auth
+    const userData = JSON.parse(localStorage.getItem('user'));
+    if (!userData) {
+      localStorage.removeItem('user');
+      navigate('/');
+    }
+  }, []);
+
+  const handleAddToOrder = (item) => {
+    if (editingIndex !== null) {
+      const updated = [...orderItems];
+      updated[editingIndex] = item;
+      setOrderItems(updated);
+      setEditingIndex(null);
+    } else {
+      setOrderItems((prev) => [...prev, item]);
+    }
+  };
+  
+  const handleEditItem = (index) => {
+    const item = orderItems[index];
+    setSelectedItem(item);
+    setEditingIndex(index);
+    setCustomizeModalOpen(true);
+  };
+  
+  const handleRemoveItem = (index) => {
+    const updated = [...orderItems];
+    updated.splice(index, 1);
+    setOrderItems(updated);
+  };
+
+  const handleCheckout = async () => {
+    try {
+      // Send Request to backend
+      const response = await fetch(`${API_BASE}/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order: orderItems }),
+      });
+      
+      // Wait for backend to verify
+      const data = await response.json();
+      if (response.ok) {
+        setShowSuccessOverlay(true);
+        setOrderItems([]);
+      
+        setTimeout(() => setShowSuccessOverlay(false), 2000);
       } else {
-        setPopupCategory(categoryLabel); // Open new popup
+        alert('Checkout failed: ' + data.error);
       }
-    };
-  
-    useEffect(() => {
-      if (popupCategory && !menuItemsByCategory[popupCategory]) {
-        fetch(`${API_BASE}/menu-items/${encodeURIComponent(popupCategory)}`)
-          .then((response) => response.json())
-          .then((data) => {
-            console.log(`Fetched items for ${popupCategory}:`, data);
-            setMenuItemsByCategory((prev) => ({
-              ...prev,
-              [popupCategory]: data,
-            }));
-          })
-          .catch((error) => {
-            console.error("Error fetching menu items:", error);
-          });
-      }
-    }, [popupCategory]);
-  
-    const menuCategories = [
-      { icon: "/images/brewed_tea.jpg", label: "Brewed Tea", color: "text-amber-900" },
-      { icon: "/images/milk_tea.jpg", label: "Milk Tea" },
-      { icon: "/images/fruit_tea.jpg", label: "Fruit Tea", color: "text-fuchsia-500" },
-      { icon: "/images/fresh_milk.jpg", label: "Fresh Milk" },
-      { icon: "/images/ice_blended.jpg", label: "Ice Blended", color: "text-cyan-500" },
-      { icon: "/images/creama.jpg", label: "Creama", color: "text-amber-300" },
-      { icon: "/images/tea_mojito.jpg", label: "Tea Mojito", color: "text-green-500" },
-      { icon: "/images/new.png", label: "New", color: "text-yellow-400" },
-      { icon: "/images/first.png", label: "TOP ORDER", color: "text-cyan-500" },
-      { icon: "/images/second.png", label: "2nd TOP ORDER", color: "text-blue-900" },
-      { icon: "/images/third.png", label: "3rd TOP ORDER", color: "text-blue-400" },
-      { icon: "/images/fourth.png", label: "4th TOP ORDER", color: "text-red-500" },
-    ];
-  
-    return (
-        <div className="bg-white rounded-3xl p-6 w-full max-w-[80%] flex-grow shadow-lg flex flex-col justify-between">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {menuCategories.map((item, index) => (
-              <MenuCategory
-                key={index}
-                {...item}
-                onClick={() => handleCategoryClick(item.label)}
-                showPopup={popupCategory === item.label}
-                menuItems={menuItemsByCategory[item.label] || []}
-                onItemSelect={onAddToOrder}
-              />
-            ))}
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert('An unexpected error occurred.');
+    }
+  };
+
+  return (
+    <div
+      className="min-h-screen w-full bg-cover bg-center"
+      style={{ backgroundImage: "url('./images/bobabackground.svg')" }}
+    >
+      <Header />
+      <main className="flex flex-1 gap-6 p-6 overflow-auto">
+        <MainMenu onAddToOrder={handleAddToOrder} />
+        <OrderSummary
+          orderItems={orderItems}
+          onEditItem={handleEditItem}
+          onRemoveItem={handleRemoveItem}
+          onCheckout={handleCheckout}
+        />
+      </main>
+
+      <CustomizeItemModal
+        item={selectedItem}
+        isOpen={customizeModalOpen}
+        onClose={() => {
+          setCustomizeModalOpen(false);
+          setEditingIndex(null);
+        }}
+        onAddToCart={handleAddToOrder}
+        editing={editingIndex !== null}
+      />
+
+      {showSuccessOverlay && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className=" text-white text-xl font-bold px-8 py-4">
+            Checkout Successful!
           </div>
         </div>
-      );
-  }
-  
-
-  function MenuPOS() {
-    const [orderItems, setOrderItems] = useState([]);
-    const navigate = useNavigate();
-  
-    useEffect(() => { //uses auth
-      const userData = JSON.parse(localStorage.getItem('user'));
-      if (!userData) {
-        localStorage.removeItem('user');
-        navigate('/');
-      }
-    }, []);
-    const handleAddToOrder = (item) => { //stores the order
-      setOrderItems((prev) => [...prev, item]);
-    };
-    
-    const handleClearOrder = () => { //clears order when transaction complete
-      setOrderItems([]); // Clear the order
-    };
-  
-    return (
-      <div
-        className="min-h-screen w-full bg-cover bg-center"
-        style={{ backgroundImage: "url('./images/bobabackground.svg')" }}
-      >
-        <Header />
-        <main className="flex flex-1 gap-6 p-6 overflow-auto">
-          <MainMenu onAddToOrder={handleAddToOrder} />
-          <OrderSummary orderItems={orderItems} onCheckout={handleClearOrder} />
-        </main>
-      </div>
-    );
-  }
-  
-
+      )}
+    </div>
+  );
+}
 
 export default MenuPOS;
