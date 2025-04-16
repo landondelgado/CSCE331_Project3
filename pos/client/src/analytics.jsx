@@ -243,7 +243,7 @@ function Analytics() {
       className="min-h-screen w-full bg-cover bg-center flex justify-center"
       style={{ backgroundImage: "url('/images/bobabackground.svg')" }}
     >
-      <div className='w-full max-w-[1920px] min-w-[1920px]'>
+      <div className='w-full max-w-[2560px]'>
         <Header />
         <div className="p-6">
           <h1 className="text-4xl text-center text-white font-bold mb-6">Analytics</h1>

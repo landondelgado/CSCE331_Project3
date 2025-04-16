@@ -468,7 +468,7 @@ export default function InventoryPage() {
       className="min-h-screen w-full bg-cover bg-center flex justify-center"
       style={{ backgroundImage: "url('/images/bobabackground.svg')" }}
     >
-      <div className='w-full max-w-[1920px] min-w-[1920px]'>
+      <div className='w-full max-w-[2560px]'>
         {/* Unified Header */}
         <InventoryHeader />
 
