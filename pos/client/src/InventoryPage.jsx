@@ -7,6 +7,7 @@ const API_BASE =
     : '/api/inventory';
 
 // Header Component (as used in Analytics styling)
+// Header Component
 function InventoryHeader() {
   const navigate = useNavigate();
   const [time, setTime] = useState(getCurrentTime());
@@ -16,7 +17,6 @@ function InventoryHeader() {
     return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
-  // Update time every second
   useEffect(() => {
     const interval = setInterval(() => setTime(getCurrentTime()), 1000);
     return () => clearInterval(interval);
@@ -30,7 +30,7 @@ function InventoryHeader() {
 
   return (
     <div className="relative flex flex-row justify-center items-center bg-cover bg-center h-20 py-6 px-8">
-      {/* Left Nav Buttons */}
+      {/* Nav Buttons */}
       <div className="absolute top-4 left-12 flex space-x-6">
         {navItems.map((item, index) => (
           <button
@@ -39,30 +39,33 @@ function InventoryHeader() {
             className="flex flex-col items-center text-white hover:scale-105 transition-transform"
           >
             <img src={item.icon} alt={item.label} className="w-10 h-10 mb-1" />
-            <span className="text-xs font-medium">{item.label}</span>
+            <span className="text-xs sm:text-sm font-medium">{item.label}</span>
           </button>
         ))}
       </div>
 
-      {/* Center Logo */}
+      {/* Logo */}
       <div className="absolute top-0 left-1/2 transform -translate-x-1/2">
         <img src="/images/ShareteaLogo.png" alt="Sharetea" className="h-16" />
       </div>
 
-      {/* Time + Logout on Right */}
+      {/* Time + Logout */}
       <div className="absolute right-6 top-5 flex items-center space-x-4">
         <button
-            className="bg-red-500 text-lg sm:text-xl font-semibold text-white rounded-full px-4 py-1 shadow"
-            onClick={() => {
-                if (window.google?.accounts?.id) {
-                window.google.accounts.id.disableAutoSelect();
-                }
-                localStorage.removeItem('user');
-                navigate('/');
-            }}
-            >
-            Logout
+          className="bg-red-500 text-lg sm:text-xl font-semibold text-white rounded-full px-4 py-1 shadow"
+          onClick={() => {
+            if (window.google?.accounts?.id) {
+              window.google.accounts.id.disableAutoSelect();
+            }
+            localStorage.removeItem('user');
+            navigate('/');
+          }}
+        >
+          Logout
         </button>
+        <div className="bg-slate-600 py-2 px-4 rounded-full text-white text-2xl font-bold">
+          {time}
+        </div>
       </div>
     </div>
   );
@@ -462,77 +465,79 @@ export default function InventoryPage() {
 
   return (
     <div
-      className="min-h-screen w-full bg-cover bg-center"
+      className="min-h-screen w-full bg-cover bg-center flex justify-center"
       style={{ backgroundImage: "url('/images/bobabackground.svg')" }}
     >
-      {/* Unified Header */}
-      <InventoryHeader />
+      <div className='w-full max-w-[1920px] min-w-[1920px]'>
+        {/* Unified Header */}
+        <InventoryHeader />
 
-      {/* Main Content Area */}
-      <div className="p-6">
-        <h1 className="text-4xl text-center text-white font-bold mb-6">
-          Inventory
-        </h1>
+        {/* Main Content Area */}
+        <div className="p-6">
+          <h1 className="text-4xl text-center text-white font-bold mb-6">
+            Inventory
+          </h1>
 
-        {/* Action Buttons Row */}
-        <div className="flex justify-center mb-6 space-x-4">
-          {actionButtons.map((btn, idx) => {
-            let onClick;
-            if (btn.label === 'Add Stock') onClick = () => setShowAddStock(true);
-            else if (btn.label === 'Create Item') onClick = () => setShowCreateItem(true);
-            else if (btn.label === 'Edit Item') onClick = () => setShowEditItem(true);
-            else if (btn.label === 'Delete Item') onClick = () => setShowDeleteItem(true);
+          {/* Action Buttons Row */}
+          <div className="flex justify-center mb-6 space-x-4">
+            {actionButtons.map((btn, idx) => {
+              let onClick;
+              if (btn.label === 'Add Stock') onClick = () => setShowAddStock(true);
+              else if (btn.label === 'Create Item') onClick = () => setShowCreateItem(true);
+              else if (btn.label === 'Edit Item') onClick = () => setShowEditItem(true);
+              else if (btn.label === 'Delete Item') onClick = () => setShowDeleteItem(true);
 
-            return (
-              <button
-                key={idx}
-                onClick={onClick}
-                className={`${btn.color} text-white font-semibold rounded px-4 py-2 transition-transform hover:scale-105`}
-              >
-                {btn.label}
-              </button>
-            );
-          })}
-        </div>
+              return (
+                <button
+                  key={idx}
+                  onClick={onClick}
+                  className={`${btn.color} text-white font-semibold rounded px-4 py-2 transition-transform hover:scale-105`}
+                >
+                  {btn.label}
+                </button>
+              );
+            })}
+          </div>
 
-        {/* Inventory Table */}
-        <div className="overflow-x-auto bg-white bg-opacity-80 rounded-lg p-4">
-          <table className="w-full table-auto text-center">
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="px-4 py-2 border border-black">Category</th>
-                <th className="px-4 py-2 border border-black">Stock</th>
-                <th className="px-4 py-2 border border-black">Previous Usage</th>
-                <th className="px-4 py-2 border border-black">Low Stock Items</th>
-              </tr>
-            </thead>
-            <tbody>
-              {inventoryData.map((row, idx) => (
-                <tr key={idx} className="border-b">
-                  <td className="px-4 py-2 border border-black">{row.category}</td>
-                  <td className="px-4 py-2 border border-black">{row.stock}</td>
-                  <td className="px-4 py-2 border border-black">{row.previousUsage ?? 0}</td>
-                  <td className="px-4 py-2 border border-black">{row.lowStockItems}</td>
+          {/* Inventory Table */}
+          <div className="overflow-x-auto bg-white bg-opacity-80 rounded-lg p-4">
+            <table className="w-full table-auto text-center">
+              <thead className="bg-gray-200">
+                <tr>
+                  <th className="px-4 py-2 border border-black">Category</th>
+                  <th className="px-4 py-2 border border-black">Stock</th>
+                  <th className="px-4 py-2 border border-black">Previous Usage</th>
+                  <th className="px-4 py-2 border border-black">Low Stock Items</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {inventoryData.map((row, idx) => (
+                  <tr key={idx} className="border-b">
+                    <td className="px-4 py-2 border border-black">{row.category}</td>
+                    <td className="px-4 py-2 border border-black">{row.stock}</td>
+                    <td className="px-4 py-2 border border-black">{row.previousUsage ?? 0}</td>
+                    <td className="px-4 py-2 border border-black">{row.lowStockItems}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      {/* Conditional Modals */}
-      {showAddStock && (
-        <AddStockModal onClose={() => setShowAddStock(false)} onSubmit={handleAddStock} />
-      )}
-      {showCreateItem && (
-        <CreateItemModal onClose={() => setShowCreateItem(false)} onSubmit={handleCreateItem} />
-      )}
-      {showEditItem && (
-        <EditItemModal onClose={() => setShowEditItem(false)} onSubmit={handleEditItem} />
-      )}
-      {showDeleteItem && (
-        <DeleteItemModal onClose={() => setShowDeleteItem(false)} onSubmit={handleDeleteItem} />
-      )}
+        {/* Conditional Modals */}
+        {showAddStock && (
+          <AddStockModal onClose={() => setShowAddStock(false)} onSubmit={handleAddStock} />
+        )}
+        {showCreateItem && (
+          <CreateItemModal onClose={() => setShowCreateItem(false)} onSubmit={handleCreateItem} />
+        )}
+        {showEditItem && (
+          <EditItemModal onClose={() => setShowEditItem(false)} onSubmit={handleEditItem} />
+        )}
+        {showDeleteItem && (
+          <DeleteItemModal onClose={() => setShowDeleteItem(false)} onSubmit={handleDeleteItem} />
+        )}
+      </div>
     </div>
   );
 }

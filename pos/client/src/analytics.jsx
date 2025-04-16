@@ -240,43 +240,45 @@ function Analytics() {
 
   return (
     <div
-      className="min-h-screen w-full bg-cover bg-center"
+      className="min-h-screen w-full bg-cover bg-center flex justify-center"
       style={{ backgroundImage: "url('/images/bobabackground.svg')" }}
     >
-      <Header />
-      <div className="p-6">
-        <h1 className="text-4xl text-center text-white font-bold mb-6">Analytics</h1>
-        {/* Tab Navigation */}
-        <div className="flex justify-center mb-4">
-          <button
-            onClick={() => setCurrentTab("category")}
-            className={`px-4 py-2 mx-2 rounded transition-colors ${
-              currentTab === "category" ? "bg-white text-black" : "bg-gray-700 text-white"
-            }`}
-          >
-            Category Summary
-          </button>
-          <button
-            onClick={() => setCurrentTab("product")}
-            className={`px-4 py-2 mx-2 rounded transition-colors ${
-              currentTab === "product" ? "bg-white text-black" : "bg-gray-700 text-white"
-            }`}
-          >
-            Product Usage Table
-          </button>
-          <button
-            onClick={() => setCurrentTab("hourly")}
-            className={`px-4 py-2 mx-2 rounded transition-colors ${
-              currentTab === "hourly" ? "bg-white text-black" : "bg-gray-700 text-white"
-            }`}
-          >
-            Hourly Sales
-          </button>
+      <div className='w-full max-w-[1920px] min-w-[1920px]'>
+        <Header />
+        <div className="p-6">
+          <h1 className="text-4xl text-center text-white font-bold mb-6">Analytics</h1>
+          {/* Tab Navigation */}
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={() => setCurrentTab("category")}
+              className={`px-4 py-2 mx-2 rounded transition-colors ${
+                currentTab === "category" ? "bg-white text-black" : "bg-gray-700 text-white"
+              }`}
+            >
+              Category Summary
+            </button>
+            <button
+              onClick={() => setCurrentTab("product")}
+              className={`px-4 py-2 mx-2 rounded transition-colors ${
+                currentTab === "product" ? "bg-white text-black" : "bg-gray-700 text-white"
+              }`}
+            >
+              Product Usage Table
+            </button>
+            <button
+              onClick={() => setCurrentTab("hourly")}
+              className={`px-4 py-2 mx-2 rounded transition-colors ${
+                currentTab === "hourly" ? "bg-white text-black" : "bg-gray-700 text-white"
+              }`}
+            >
+              Hourly Sales
+            </button>
+          </div>
+          {/* Render Selected Tab */}
+          {currentTab === "category" && <CategorySummary />}
+          {currentTab === "product" && <ProductUsage />}
+          {currentTab === "hourly" && <HourlySales />}
         </div>
-        {/* Render Selected Tab */}
-        {currentTab === "category" && <CategorySummary />}
-        {currentTab === "product" && <ProductUsage />}
-        {currentTab === "hourly" && <HourlySales />}
       </div>
     </div>
   );

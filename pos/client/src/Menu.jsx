@@ -181,7 +181,7 @@ function CategoryModal({ isOpen, onClose, title, items = [], onItemSelect }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex justify-center items-center">
-      <div className="relative bg-gradient-to-br from-white to-gray-100 w-[90%] h-[90%] rounded-xl shadow-xl p-8 overflow-y-auto">
+      <div className="relative bg-gradient-to-br from-white to-gray-100 w-[90%] max-w-fit h-[90%] max-h-fit rounded-xl shadow-xl p-8 overflow-y-auto">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -194,41 +194,41 @@ function CategoryModal({ isOpen, onClose, title, items = [], onItemSelect }) {
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">{title}</h2>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4">
-        {items.map((item) => {
-          const outOfStock = item.stock <= 0;
-          return (
-            <div
-              key={item.id}
-              className={`bg-white rounded-2xl shadow-md overflow-hidden transition cursor-pointer ${
-                outOfStock ? 'opacity-50 grayscale pointer-events-none' : 'hover:shadow-xl'
-              }`}
-              onClick={() => !outOfStock && onItemSelect(item)}
-            >
-              <div className="w-full h-[400px] overflow-hidden">
-                <img
-                  src={`/images/${item.name.toLowerCase().replace(/ /g, '_')}.png`}
-                  alt={item.name}
-                  className="w-full h-full object-cover object-center"
-                  onError={(e) => (e.target.src = '/images/default.png')}
-                />
+        <div className="flex flex-wrap justify-center gap-6 px-28 pb-6">
+          {items.map((item) => {
+            const outOfStock = item.stock <= 0;
+            return (
+              <div
+                key={item.id}
+                className={`bg-white rounded-2xl shadow-md overflow-hidden transition cursor-pointer ${
+                  outOfStock ? 'opacity-50 grayscale pointer-events-none' : 'hover:shadow-xl'
+                }`}
+                onClick={() => !outOfStock && onItemSelect(item)}
+              >
+                <div className="w-full h-[400px] overflow-hidden">
+                  <img
+                    src={`/images/${item.name.toLowerCase().replace(/ /g, '_')}.png`}
+                    alt={item.name}
+                    className="w-full h-full object-cover object-center"
+                    onError={(e) => (e.target.src = '/images/default.png')}
+                  />
+                </div>
+                <div className="p-4 text-center">
+                  <h3
+                    className={`text-base font-semibold text-gray-800 ${
+                      outOfStock ? 'line-through' : ''
+                    }`}
+                  >
+                    {item.name}
+                  </h3>
+                  <p className="text-sm text-gray-600">${parseFloat(item.price).toFixed(2)}</p>
+                  {outOfStock && (
+                    <p className="text-red-500 text-xs font-semibold">Out of Stock</p>
+                  )}
+                </div>
               </div>
-              <div className="p-4 text-center">
-                <h3
-                  className={`text-base font-semibold text-gray-800 ${
-                    outOfStock ? 'line-through' : ''
-                  }`}
-                >
-                  {item.name}
-                </h3>
-                <p className="text-sm text-gray-600">${parseFloat(item.price).toFixed(2)}</p>
-                {outOfStock && (
-                  <p className="text-red-500 text-xs font-semibold">Out of Stock</p>
-                )}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
         </div>
       </div>
     </div>
@@ -413,7 +413,7 @@ function OrderSummary({ orderItems = [], onCheckout, onEditItem, onRemoveItem })
   const total = orderItems.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2);
 
   return (
-    <div className="bg-white w-full max-w-[20%] rounded-2xl shadow border border-blue-300 p-4 flex flex-col justify-between">
+    <div className="bg-white w-full max-w-[25%] rounded-2xl shadow border border-blue-300 p-4 flex flex-col justify-between">
       <div>
         <h2 className="text-lg font-semibold text-center mb-2 border-b pb-2">Order</h2>
         {/* Items */}
@@ -426,7 +426,7 @@ function OrderSummary({ orderItems = [], onCheckout, onEditItem, onRemoveItem })
             <img
               src={`/images/${item.name.toLowerCase().replace(/ /g, '_')}.png`}
               alt={item.name}
-              className="w-24 h-full object-cover rounded-md"
+              className="w-20 h-full object-cover rounded-md"
               onError={(e) => (e.target.src = '/images/default.png')}
             />
 
@@ -528,7 +528,7 @@ function MainMenu({ onAddToOrder }) {
 
   return (
     <>
-      <div className="bg-white rounded-3xl p-6 w-full max-w-[80%] flex-grow shadow-lg flex flex-col justify-between">
+      <div className="bg-white rounded-3xl p-6 w-full max-w-[75%] min-w-[75%] flex-grow shadow-lg flex flex-col justify-between">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {menuCategories.map((item, index) => (
             <MenuCategory
@@ -559,7 +559,6 @@ function MainMenu({ onAddToOrder }) {
     </>
   );
 }
-
 function Menu() {
   const [orderItems, setOrderItems] = useState([]);
   const [customizeModalOpen, setCustomizeModalOpen] = useState(false);
@@ -619,38 +618,40 @@ function Menu() {
 
   return (
     <div
-      className="min-h-screen w-full bg-cover bg-center"
+      className="min-h-screen w-full bg-cover bg-center flex justify-center"
       style={{ backgroundImage: "url('./images/bobabackground.svg')" }}
     >
-      <Header />
-      <main className="flex flex-1 gap-6 p-6 overflow-auto">
-        <MainMenu onAddToOrder={handleAddToOrder} />
-        <OrderSummary
-          orderItems={orderItems}
-          onEditItem={handleEditItem}
-          onRemoveItem={handleRemoveItem}
-          onCheckout={handleCheckout}
+      <div className='w-full max-w-[1920px] min-w-[1920px]'>
+        <Header />
+        <main className="flex flex-1 gap-6 p-6 overflow-auto">
+          <MainMenu onAddToOrder={handleAddToOrder} />
+          <OrderSummary
+            orderItems={orderItems}
+            onEditItem={handleEditItem}
+            onRemoveItem={handleRemoveItem}
+            onCheckout={handleCheckout}
+          />
+        </main>
+
+        <CustomizeItemModal
+          item={selectedItem}
+          isOpen={customizeModalOpen}
+          onClose={() => {
+            setCustomizeModalOpen(false);
+            setEditingIndex(null);
+          }}
+          onAddToCart={handleAddToOrder}
+          editing={editingIndex !== null}
         />
-      </main>
 
-      <CustomizeItemModal
-        item={selectedItem}
-        isOpen={customizeModalOpen}
-        onClose={() => {
-          setCustomizeModalOpen(false);
-          setEditingIndex(null);
-        }}
-        onAddToCart={handleAddToOrder}
-        editing={editingIndex !== null}
-      />
-
-      {showSuccessOverlay && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className=" text-white text-xl font-bold px-8 py-4">
-            Checkout Successful!
+        {showSuccessOverlay && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <div className=" text-white text-xl font-bold px-8 py-4">
+              Checkout Successful!
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
