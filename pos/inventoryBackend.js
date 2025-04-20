@@ -135,4 +135,57 @@ router.delete('/delete-item', async (req, res) => {
   }
 });
 
+// Add a new user
+router.post('/add-user', async (req, res) => {
+  const { email, isManager } = req.body;
+  try {
+    const check = await pool.query('SELECT * FROM Users WHERE username = $1', [email]);
+    if (check.rows.length > 0) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+
+    await pool.query('INSERT INTO Users (username, ismanager) VALUES ($1, $2)', [email, isManager]);
+    res.json({ message: 'User added successfully' });
+  } catch (err) {
+    console.error('Error adding user:', err);
+    res.status(500).json({ error: 'Failed to add user' });
+  }
+});
+
+// Edit an existing user
+router.put('/edit-user', async (req, res) => {
+  const { oldEmail, newEmail, isManager } = req.body;
+  try {
+    const check = await pool.query('SELECT * FROM Users WHERE username = $1', [oldEmail]);
+    if (check.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    await pool.query(
+      'UPDATE Users SET username = $1, ismanager = $2 WHERE username = $3',
+      [newEmail, isManager, oldEmail]
+    );
+
+    res.json({ message: 'User updated successfully' });
+  } catch (err) {
+    console.error('Error editing user:', err);
+    res.status(500).json({ error: 'Failed to edit user' });
+  }
+});
+
+// Remove a user
+router.delete('/remove-user', async (req, res) => {
+  const { email } = req.body;
+  try {
+    const result = await pool.query('DELETE FROM Users WHERE username = $1', [email]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ message: 'User removed successfully' });
+  } catch (err) {
+    console.error('Error removing user:', err);
+    res.status(500).json({ error: 'Failed to remove user' });
+  }
+});
+
 module.exports = router;

@@ -347,6 +347,91 @@ function DeleteItemModal({ onClose, onSubmit }) {
   );
 }
 
+/* Modal Component for "Add User" */
+function AddUserModal({ onClose, onSubmit }) {
+  const [email, setEmail] = useState('');
+  const [isManager, setIsManager] = useState(false);
+
+  const handleSubmit = () => {
+    onSubmit({ email, isManager });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded shadow-lg w-80">
+        <h3 className="text-xl font-bold mb-4">Add User</h3>
+        <label className="block mb-1">Email:</label>
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full border px-2 py-1 mb-4 rounded" />
+        <label className="block mb-1">
+          <input type="checkbox" checked={isManager} onChange={e => setIsManager(e.target.checked)} />
+          <span className="ml-2">Is Manager?</span>
+        </label>
+        <div className="flex justify-end mt-4">
+          <button onClick={onClose} className="mr-2 px-4 py-2 bg-gray-300 rounded">Cancel</button>
+          <button onClick={handleSubmit} className="px-4 py-2 bg-blue-500 text-white rounded">Add</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Modal Component for "Edit User" */
+function EditUserModal({ onClose, onSubmit }) {
+  const [oldEmail, setOldEmail] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [isManager, setIsManager] = useState(false);
+
+  const handleSubmit = () => {
+    onSubmit({ oldEmail, newEmail, isManager });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded shadow-lg w-80">
+        <h3 className="text-xl font-bold mb-4">Edit User</h3>
+        <label className="block mb-1">Current Email:</label>
+        <input type="email" value={oldEmail} onChange={e => setOldEmail(e.target.value)} className="w-full border px-2 py-1 mb-2 rounded" />
+        <label className="block mb-1">New Email:</label>
+        <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} className="w-full border px-2 py-1 mb-2 rounded" />
+        <label className="block mb-1">
+          <input type="checkbox" checked={isManager} onChange={e => setIsManager(e.target.checked)} />
+          <span className="ml-2">Is Manager?</span>
+        </label>
+        <div className="flex justify-end mt-4">
+          <button onClick={onClose} className="mr-2 px-4 py-2 bg-gray-300 rounded">Cancel</button>
+          <button onClick={handleSubmit} className="px-4 py-2 bg-blue-500 text-white rounded">Save</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Modal Component for "Remove User" */
+function RemoveUserModal({ onClose, onSubmit }) {
+  const [email, setEmail] = useState('');
+
+  const handleSubmit = () => {
+    onSubmit({ email });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded shadow-lg w-80">
+        <h3 className="text-xl font-bold mb-4">Remove User</h3>
+        <label className="block mb-1">Email:</label>
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full border px-2 py-1 mb-4 rounded" />
+        <div className="flex justify-end">
+          <button onClick={onClose} className="mr-2 px-4 py-2 bg-gray-300 rounded">Cancel</button>
+          <button onClick={handleSubmit} className="px-4 py-2 bg-red-500 text-white rounded">Remove</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Main Inventory Page Component
 export default function InventoryPage() {
   const navigate = useNavigate();
@@ -365,12 +450,18 @@ export default function InventoryPage() {
     { label: 'Create Item', color: 'bg-blue-500 hover:bg-blue-600' },
     { label: 'Edit Item', color: 'bg-yellow-500 hover:bg-yellow-600' },
     { label: 'Delete Item', color: 'bg-red-500 hover:bg-red-600' },
+    { label: 'Add User', color: 'bg-green-500 hover:bg-green-600' },
+    { label: 'Edit User', color: 'bg-yellow-500 hover:bg-yellow-600' },
+    { label: 'Remove User', color: 'bg-red-500 hover:bg-red-600' }
   ];
 
   const [showAddStock, setShowAddStock] = useState(false);
   const [showCreateItem, setShowCreateItem] = useState(false);
   const [showEditItem, setShowEditItem] = useState(false);
   const [showDeleteItem, setShowDeleteItem] = useState(false);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [showEditUser, setShowEditUser] = useState(false);
+  const [showRemoveUser, setShowRemoveUser] = useState(false);
 
   // Send add stock request to backend
   const handleAddStock = async ({ item, amount }) => {
@@ -447,6 +538,54 @@ export default function InventoryPage() {
       alert('Error deleting item: ' + err.message);
     }
   };
+
+  // Send add user request to backend
+  const handleAddUser = async ({ email, isManager }) => {
+    try {
+      const res = await fetch(`${API_BASE}/add-user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, isManager }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      alert('User added!');
+    } catch (err) {
+      alert('Add user failed: ' + err.message);
+    }
+  };
+  
+  // Send edit user request to backend
+  const handleEditUser = async ({ oldEmail, newEmail, isManager }) => {
+    try {
+      const res = await fetch(`${API_BASE}/edit-user`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ oldEmail, newEmail, isManager }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      alert('User updated!');
+    } catch (err) {
+      alert('Edit user failed: ' + err.message);
+    }
+  };
+  
+  // Send remove user request to backend
+  const handleRemoveUser = async ({ email }) => {
+    try {
+      const res = await fetch(`${API_BASE}/remove-user`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      alert('User removed!');
+    } catch (err) {
+      alert('Remove user failed: ' + err.message);
+    }
+  };
   
   /* Load inventory from backend */
   const [inventoryData, setInventoryData] = useState([]);
@@ -486,6 +625,9 @@ export default function InventoryPage() {
               else if (btn.label === 'Create Item') onClick = () => setShowCreateItem(true);
               else if (btn.label === 'Edit Item') onClick = () => setShowEditItem(true);
               else if (btn.label === 'Delete Item') onClick = () => setShowDeleteItem(true);
+              else if (btn.label === 'Add User') onClick = () => setShowAddUser(true);
+              else if (btn.label === 'Edit User') onClick = () => setShowEditUser(true);
+              else if (btn.label === 'Remove User') onClick = () => setShowRemoveUser(true);
 
               return (
                 <button
@@ -536,6 +678,15 @@ export default function InventoryPage() {
         )}
         {showDeleteItem && (
           <DeleteItemModal onClose={() => setShowDeleteItem(false)} onSubmit={handleDeleteItem} />
+        )}
+        {showAddUser && (
+          <AddUserModal onClose={() => setShowAddUser(false)} onSubmit={handleAddUser} />
+        )}
+        {showEditUser && (
+          <EditUserModal onClose={() => setShowEditUser(false)} onSubmit={handleEditUser} />
+        )}
+        {showRemoveUser && (
+          <RemoveUserModal onClose={() => setShowRemoveUser(false)} onSubmit={handleRemoveUser} />
         )}
       </div>
     </div>
