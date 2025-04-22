@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useVisibility } from './App';
+import VisibilityControls from './VisibilityControls';
 
 const API_BASE =
   process.env.NODE_ENV === 'development'
@@ -12,6 +14,7 @@ function Header() {
   const [search, setSearch] = useState('');
   const [translateText, setTranslateText] = useState('Translate');
   const translations = ['Translate', 'Traducir', '翻译'];
+  const { showControls, setShowControls } = useVisibility();
 
   // State to manage modal visibility
   const [showTranslateModal, setShowTranslateModal] = useState(false);
@@ -139,6 +142,19 @@ function Header() {
             {translateText}
           </span>
         </button>
+        {/* Visibility Button */}
+        <div className="relative inline-block">
+          <button
+            onClick={() => setShowControls(prev => !prev)}
+            className="flex flex-col items-center text-white hover:scale-105 transition-transform"
+          >
+            <img src="/images/brightness-contrast.png" className="w-10 h-10 mb-1" />
+            <span className="text-xs sm:text-sm font-medium block w-full text-center truncate">
+              Visibility
+            </span>
+          </button>
+          {showControls && <VisibilityControls />}
+        </div>
       </div>
 
       {/* Logo */}

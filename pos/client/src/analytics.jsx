@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useVisibility } from './App';
+import VisibilityControls from './VisibilityControls';
 
 // API base URL
 const API_BASE =
@@ -11,6 +13,7 @@ const API_BASE =
 function Header() {
   const navigate = useNavigate();
   const [time, setTime] = useState(getCurrentTime());
+  const { showControls, setShowControls } = useVisibility();
 
   function getCurrentTime() {
     const now = new Date();
@@ -42,6 +45,19 @@ function Header() {
             <span className="text-xs sm:text-sm font-medium">{item.label}</span>
           </button>
         ))}
+        {/* Visibility Button */}
+        <div className="relative inline-block">
+          <button
+            onClick={() => setShowControls(prev => !prev)}
+            className="flex flex-col items-center text-white hover:scale-105 transition-transform"
+          >
+            <img src="/images/brightness-contrast.png" className="w-10 h-10 mb-1" />
+            <span className="text-xs sm:text-sm font-medium block w-full text-center truncate">
+              Visibility
+            </span>
+          </button>
+          {showControls && <VisibilityControls />}
+        </div>
       </div>
 
       {/* Logo */}

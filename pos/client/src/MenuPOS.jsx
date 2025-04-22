@@ -1,6 +1,8 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useVisibility } from './App';
+import VisibilityControls from './VisibilityControls';
 
 const API_BASE = //connect frontend to backend
   process.env.NODE_ENV === 'development'
@@ -11,6 +13,8 @@ const API_BASE = //connect frontend to backend
 function Header() {
   const navigate = useNavigate();
   const [time, setTime] = useState(getCurrentTime());
+  const { showControls, setShowControls } = useVisibility();
+  const userData = JSON.parse(localStorage.getItem('user'));
 
   function getCurrentTime() {
     const now = new Date();
@@ -18,15 +22,19 @@ function Header() {
   }
 
   useEffect(() => {
-    const interval = setInterval(() => setTime(getCurrentTime()), 1000);
-    return () => clearInterval(interval);
-  }, []);
+      const interval = setInterval(() => setTime(getCurrentTime()), 1000);
+      return () => clearInterval(interval);
+    }, []);
 
-  const navItems = [
+  const navItems = userData?.isManager
+  ? [
     { label: 'Home', icon: '/images/home.png', route: '/menupos' },
     { label: 'Analytics', icon: '/images/analytics.png', route: '/analytics' },
     { label: 'Inventory', icon: '/images/inventory.png', route: '/inventory' },
-  ];
+  ]
+  : [
+      { label: 'Home', icon: '/images/home.png', route: '/menupos' }
+    ];
 
   return (
     <div className="relative flex flex-row justify-center items-center bg-cover bg-center h-20 py-6 px-8">
@@ -42,6 +50,19 @@ function Header() {
             <span className="text-xs sm:text-sm font-medium">{item.label}</span>
           </button>
         ))}
+        {/* Visibility Button */}
+        <div className="relative inline-block">
+          <button
+            onClick={() => setShowControls(prev => !prev)}
+            className="flex flex-col items-center text-white hover:scale-105 transition-transform"
+          >
+            <img src="/images/brightness-contrast.png" className="w-10 h-10 mb-1" />
+            <span className="text-xs sm:text-sm font-medium block w-full text-center truncate">
+              Visibility
+            </span>
+          </button>
+          {showControls && <VisibilityControls />}
+        </div>
       </div>
 
       {/* Logo */}
@@ -464,15 +485,13 @@ function MenuPOS() {
   const [editingIndex, setEditingIndex] = useState(null);
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
   const navigate = useNavigate();
-
-  // For logout button
-  useEffect(() => { //uses auth
+  useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('user'));
     if (!userData) {
       localStorage.removeItem('user');
       navigate('/');
     }
-  }, []);
+  }, [navigate]);
 
   const handleAddToOrder = (item) => {
     if (editingIndex !== null) {
