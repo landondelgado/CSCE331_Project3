@@ -239,6 +239,7 @@ function CategoryModal({ isOpen, onClose, title, items = [], onItemSelect }) {
 function CustomizeItemModal({ item, isOpen, onClose, onAddToCart, editing }) {
   const [toppings, setToppings] = useState([]);
   const [selectedToppings, setSelectedToppings] = useState([]);
+  const [showInfoModal, setShowInfoModal] = useState(false); //health/nutrition
 
   // Retrieve toppings from database
   useEffect(() => {
@@ -298,6 +299,26 @@ function CustomizeItemModal({ item, isOpen, onClose, onAddToCart, editing }) {
 
         {/* Item Image and Description */}
         <div className="flex-1">
+          <button //popup button to get health information about items
+            className="absolute top-8 left-8 bg-white bg-opacity-70 hover:bg-opacity-90 text-black rounded-full p-1 shadow"
+            title={`Nutritional info about ${item.name}`}
+            onClick={() => setShowInfoModal(true)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"
+              />
+            </svg>
+          </button>
           <img
             src={`/images/${item.name.toLowerCase().replace(/ /g, '_')}.png`}
             alt={item.name}
@@ -366,6 +387,29 @@ function CustomizeItemModal({ item, isOpen, onClose, onAddToCart, editing }) {
           </button>
         </div>
       </div>
+      {showInfoModal && ( //table of health information
+      <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+      <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold text-center">{item.name} Info</h3>
+          <button onClick={() => setShowInfoModal(false)} className="text-gray-500 hover:text-black text-2xl">&times;</button>
+        </div>
+  
+        <table className="w-full text-sm text-left text-gray-700 border">
+          <tbody>
+            <tr><td className="font-semibold">Calories</td><td>{item.kcal ?? 0} kcal</td></tr>
+            <tr><td className="font-semibold">Saturated Fat</td><td>{item.saturatedFat ?? 0} g</td></tr>
+            <tr><td className="font-semibold">Sodium</td><td>{item.sodium ?? 0} mg</td></tr>
+            <tr><td className="font-semibold">Carbs</td><td>{item.carbs ?? 0} g</td></tr>
+            <tr><td className="font-semibold">Sugar</td><td>{item.sugar ?? 0} g</td></tr>
+            <tr><td className="font-semibold">Vegetarian</td><td>{item.vegetarian ?? 'N/A'}</td></tr>
+            <tr><td className="font-semibold">Allergens</td><td>{item.allergen ?? '-'}</td></tr>
+            <tr><td className="font-semibold">Caffeine</td><td>{item.caffeine ?? 0} mg</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    )}
     </div>
   );
 }
@@ -492,7 +536,7 @@ function MainMenu({ onAddToOrder }) {
   const handleItemClick = (item) => {
     setSelectedItem(item);
     setCustomizeModalOpen(true);
-    setModalOpen(false); // ✅ Close CategoryModal
+    setModalOpen(false); // Close CategoryModal
   };
 
   useEffect(() => {

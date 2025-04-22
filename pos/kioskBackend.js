@@ -36,7 +36,15 @@ router.get('/menu-items/:category', async (req, res) => {
   const category = req.params.category;
 
   // Default query for a category
-  let query = `SELECT Menu.name, Menu.id, Menu.price, Inventory.stock
+  let query = `SELECT Menu.name, Menu.id, Menu.price, Inventory.stock,
+              Menu.kcal,
+              Menu."saturated fat/g" AS saturatedFat,
+              Menu."sodium/mg" AS sodium,
+              Menu."carbs/g" AS carbs,
+              Menu."sugar/g" AS sugar,
+              Menu.vegetarian,
+              Menu.allergen,
+              Menu."caffeine (mg)/cup" AS caffeine
               FROM Menu
               JOIN Inventory ON Menu.id = Inventory.itemid
               WHERE Menu.category = $1`;
@@ -45,17 +53,85 @@ router.get('/menu-items/:category', async (req, res) => {
 
   //Get top menu items
   const categoryMap = {
-    "TOP ORDER": `SELECT itemname AS name, itemid AS id, saleprice AS price, COUNT(*) AS sales 
-                  FROM Sales GROUP BY itemname, itemid, saleprice 
+    "TOP ORDER": `SELECT 
+                    Sales.itemname AS name, 
+                    Sales.itemid AS id, 
+                    Sales.saleprice AS price, 
+                    COUNT(*) AS sales,
+                    Menu.kcal,
+                    Menu."saturated fat/g" AS saturatedFat,
+                    Menu."sodium/mg" AS sodium,
+                    Menu."carbs/g" AS carbs,
+                    Menu."sugar/g" AS sugar,
+                    Menu.vegetarian,
+                    Menu.allergen,
+                    Menu."caffeine (mg)/cup" AS caffeine
+                  FROM Sales
+                  JOIN Menu ON Sales.itemid = Menu.id
+                  GROUP BY Sales.itemname, Sales.itemid, Sales.saleprice, 
+                          Menu.kcal, Menu."saturated fat/g", Menu."sodium/mg", 
+                          Menu."carbs/g", Menu."sugar/g", Menu.vegetarian, 
+                          Menu.allergen, Menu."caffeine (mg)/cup"
                   ORDER BY sales DESC LIMIT 1`,
-    "2nd TOP ORDER": `SELECT itemname AS name, itemid AS id, saleprice AS price, COUNT(*) AS sales 
-                      FROM Sales GROUP BY itemname, itemid, saleprice 
+    "2nd TOP ORDER": `SELECT
+                        Sales.itemname AS name, 
+                        Sales.itemid AS id, 
+                        Sales.saleprice AS price, 
+                        COUNT(*) AS sales,
+                        Menu.kcal,
+                        Menu."saturated fat/g" AS saturatedFat,
+                        Menu."sodium/mg" AS sodium,
+                        Menu."carbs/g" AS carbs,
+                        Menu."sugar/g" AS sugar,
+                        Menu.vegetarian,
+                        Menu.allergen,
+                        Menu."caffeine (mg)/cup" AS caffeine
+                      FROM Sales
+                      JOIN Menu ON Sales.itemid = Menu.id
+                      GROUP BY Sales.itemname, Sales.itemid, Sales.saleprice, 
+                              Menu.kcal, Menu."saturated fat/g", Menu."sodium/mg", 
+                              Menu."carbs/g", Menu."sugar/g", Menu.vegetarian, 
+                              Menu.allergen, Menu."caffeine (mg)/cup" 
                       ORDER BY sales DESC LIMIT 1 OFFSET 1`,
-    "3rd TOP ORDER": `SELECT itemname AS name, itemid AS id, saleprice AS price, COUNT(*) AS sales 
-                      FROM Sales GROUP BY itemname, itemid, saleprice 
+    "3rd TOP ORDER": `SELECT 
+                        Sales.itemname AS name, 
+                        Sales.itemid AS id, 
+                        Sales.saleprice AS price, 
+                        COUNT(*) AS sales,
+                        Menu.kcal,
+                        Menu."saturated fat/g" AS saturatedFat,
+                        Menu."sodium/mg" AS sodium,
+                        Menu."carbs/g" AS carbs,
+                        Menu."sugar/g" AS sugar,
+                        Menu.vegetarian,
+                        Menu.allergen,
+                        Menu."caffeine (mg)/cup" AS caffeine
+                      FROM Sales
+                      JOIN Menu ON Sales.itemid = Menu.id
+                      GROUP BY Sales.itemname, Sales.itemid, Sales.saleprice, 
+                              Menu.kcal, Menu."saturated fat/g", Menu."sodium/mg", 
+                              Menu."carbs/g", Menu."sugar/g", Menu.vegetarian, 
+                              Menu.allergen, Menu."caffeine (mg)/cup" 
                       ORDER BY sales DESC LIMIT 1 OFFSET 2`,
-    "4th TOP ORDER": `SELECT itemname AS name, itemid AS id, saleprice AS price, COUNT(*) AS sales 
-                      FROM Sales GROUP BY itemname, itemid, saleprice 
+    "4th TOP ORDER": `SELECT 
+                        Sales.itemname AS name, 
+                        Sales.itemid AS id, 
+                        Sales.saleprice AS price, 
+                        COUNT(*) AS sales,
+                        Menu.kcal,
+                        Menu."saturated fat/g" AS saturatedFat,
+                        Menu."sodium/mg" AS sodium,
+                        Menu."carbs/g" AS carbs,
+                        Menu."sugar/g" AS sugar,
+                        Menu.vegetarian,
+                        Menu.allergen,
+                        Menu."caffeine (mg)/cup" AS caffeine
+                      FROM Sales
+                      JOIN Menu ON Sales.itemid = Menu.id
+                      GROUP BY Sales.itemname, Sales.itemid, Sales.saleprice, 
+                              Menu.kcal, Menu."saturated fat/g", Menu."sodium/mg", 
+                              Menu."carbs/g", Menu."sugar/g", Menu.vegetarian, 
+                              Menu.allergen, Menu."caffeine (mg)/cup" 
                       ORDER BY sales DESC LIMIT 1 OFFSET 3`,
   };
 
