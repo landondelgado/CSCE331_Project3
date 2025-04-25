@@ -181,7 +181,7 @@ function Header() {
                 onClick={() => setShowTranslateModal(false)}
                 className="bg-gray-200 px-4 py-2 rounded"
               >
-                Cancel
+                Okay
               </button>
             </div>
           </div>
@@ -237,7 +237,7 @@ function CategoryModal({ isOpen, onClose, title, items = [], onItemSelect }) {
                   >
                     {item.name}
                   </h3>
-                  <p className="text-sm text-gray-600">${parseFloat(item.price).toFixed(2)}</p>
+                  <p className="text-sm text-gray-600 notranslate">${parseFloat(item.price).toFixed(2)}</p>
                   {outOfStock && (
                     <p className="text-red-500 text-xs font-semibold">Out of Stock</p>
                   )}
@@ -255,7 +255,8 @@ function CategoryModal({ isOpen, onClose, title, items = [], onItemSelect }) {
 function CustomizeItemModal({ item, isOpen, onClose, onAddToCart, editing }) {
   const [toppings, setToppings] = useState([]);
   const [selectedToppings, setSelectedToppings] = useState([]);
-  const [showInfoModal, setShowInfoModal] = useState(false); //health/nutrition
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   // Retrieve toppings from database
   useEffect(() => {
@@ -269,12 +270,25 @@ function CustomizeItemModal({ item, isOpen, onClose, onAddToCart, editing }) {
 
   // Handles selecting toppings
   useEffect(() => {
-    if (isOpen && item?.toppings) {
+    if (isOpen && item) {
       setSelectedToppings(item.toppings || []);
+      const base = parseFloat(item.basePrice ?? item.price) || 0;
+      const toppingsTotal = (item.toppings || []).reduce((sum, t) => sum + parseFloat(t.price), 0);
+      setTotalPrice(base + toppingsTotal);
     } else if (!isOpen) {
       setSelectedToppings([]);
+      setTotalPrice(0);
     }
   }, [isOpen, item]);
+
+  // Update total price every time selectedToppings changes
+  useEffect(() => {
+    if (item) {
+      const base = parseFloat(item.basePrice ?? item.price) || 0;
+      const toppingsTotal = selectedToppings.reduce((sum, t) => sum + parseFloat(t.price), 0);
+      setTotalPrice(base + toppingsTotal);
+    }
+  }, [selectedToppings, item]);
 
   // Adds and removes toppings from selected toppings
   const toggleTopping = (topping) => {
@@ -320,18 +334,18 @@ function CustomizeItemModal({ item, isOpen, onClose, onAddToCart, editing }) {
             title={`Nutritional info about ${item.name}`}
             onClick={() => setShowInfoModal(true)}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-6 w-6" 
+              fill="none" 
+              viewBox="0 0 24 24" 
               stroke="currentColor"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" 
               />
             </svg>
           </button>
@@ -347,35 +361,34 @@ function CustomizeItemModal({ item, isOpen, onClose, onAddToCart, editing }) {
           </p>
         </div>
 
-        {/* Toppings */}
+        {/* Toppings and Price */}
         <div className="flex-1">
           <h2 className="text-xl font-bold text-center mb-4">Toppings</h2>
           <div className="space-y-3 max-h-[500px] overflow-y-auto">
-          {toppings.map((topping) => {
-            const selected = selectedToppings.some((t) => t.id === topping.id);
-            const outOfStock = topping.stock <= 0;
+            {toppings.map((topping) => {
+              const selected = selectedToppings.some((t) => t.id === topping.id);
+              const outOfStock = topping.stock <= 0;
+              
+              return (
+                <div
+                  key={topping.id}
+                  className={`flex items-center justify-between px-4 py-2 rounded-lg shadow-sm ${
+                    outOfStock ? 'bg-gray-200 opacity-50' : 'bg-gray-100'
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                    <span
+                      className={`font-medium text-gray-800 ${
+                        outOfStock ? 'line-through' : ''
+                      }`}
+                    >
+                      {topping.name}
+                    </span>
+                    <span className="text-gray-600 text-sm sm:text-base notranslate">
+                      ${parseFloat(topping.price).toFixed(2)}
+                    </span>
+                  </div>
 
-            return (
-              <div
-                key={topping.id}
-                className={`flex items-center justify-between px-4 py-2 rounded-lg shadow-sm ${
-                  outOfStock ? 'bg-gray-200 opacity-50' : 'bg-gray-100'
-                }`}
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-                  <span
-                    className={`font-medium text-gray-800 ${
-                      outOfStock ? 'line-through' : ''
-                    }`}
-                  >
-                    {topping.name}
-                  </span>
-                  <span className="text-gray-600 text-sm sm:text-base">
-                    ${parseFloat(topping.price).toFixed(2)}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-center h-full">
                   {!outOfStock && (
                     <button
                       onClick={() => toggleTopping(topping)}
@@ -389,12 +402,16 @@ function CustomizeItemModal({ item, isOpen, onClose, onAddToCart, editing }) {
                     </button>
                   )}
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
           </div>
 
-          {/* Add to Cart/Update Item Button */}
+          {/* Show Total */}
+          <div className="text-center text-lg font-bold mt-4">
+            Total: <span className="notranslate">${totalPrice.toFixed(2)}</span>
+          </div>
+
+          {/* Add to Cart / Update Button */}
           <button
             onClick={handleAdd}
             className="bg-green-500 text-white w-full mt-4 py-2 rounded-md text-lg font-semibold"
@@ -403,29 +420,35 @@ function CustomizeItemModal({ item, isOpen, onClose, onAddToCart, editing }) {
           </button>
         </div>
       </div>
-      {showInfoModal && ( //table of health information
-      <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
-      <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-center">{item.name} Info</h3>
-          <button onClick={() => setShowInfoModal(false)} className="text-gray-500 hover:text-black text-2xl">&times;</button>
+
+      {/* Nutrition Info Modal */}
+      {showInfoModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-center">{item.name} Info</h3>
+              <button
+                onClick={() => setShowInfoModal(false)}
+                className="text-gray-500 hover:text-black text-2xl"
+              >
+                &times;
+              </button>
+            </div>
+            <table className="w-full text-sm text-left text-gray-700 border">
+              <tbody>
+                <tr><td className="font-semibold">Calories</td><td>{item.kcal ?? 0} kcal</td></tr>
+                <tr><td className="font-semibold">Saturated Fat</td><td>{item.saturatedFat ?? 0} g</td></tr>
+                <tr><td className="font-semibold">Sodium</td><td>{item.sodium ?? 0} mg</td></tr>
+                <tr><td className="font-semibold">Carbs</td><td>{item.carbs ?? 0} g</td></tr>
+                <tr><td className="font-semibold">Sugar</td><td>{item.sugar ?? 0} g</td></tr>
+                <tr><td className="font-semibold">Vegetarian</td><td>{item.vegetarian ?? 'N/A'}</td></tr>
+                <tr><td className="font-semibold">Allergens</td><td>{item.allergen ?? '-'}</td></tr>
+                <tr><td className="font-semibold">Caffeine</td><td>{item.caffeine ?? 0} mg</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-  
-        <table className="w-full text-sm text-left text-gray-700 border">
-          <tbody>
-            <tr><td className="font-semibold">Calories</td><td>{item.kcal ?? 0} kcal</td></tr>
-            <tr><td className="font-semibold">Saturated Fat</td><td>{item.saturatedFat ?? 0} g</td></tr>
-            <tr><td className="font-semibold">Sodium</td><td>{item.sodium ?? 0} mg</td></tr>
-            <tr><td className="font-semibold">Carbs</td><td>{item.carbs ?? 0} g</td></tr>
-            <tr><td className="font-semibold">Sugar</td><td>{item.sugar ?? 0} g</td></tr>
-            <tr><td className="font-semibold">Vegetarian</td><td>{item.vegetarian ?? 'N/A'}</td></tr>
-            <tr><td className="font-semibold">Allergens</td><td>{item.allergen ?? '-'}</td></tr>
-            <tr><td className="font-semibold">Caffeine</td><td>{item.caffeine ?? 0} mg</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    )}
+      )}
     </div>
   );
 }
@@ -492,7 +515,7 @@ function OrderSummary({ orderItems = [], onCheckout, onEditItem, onRemoveItem })
 
             <div className="flex flex-col flex-1">
               <span className="font-bold text-slate-700 text-lg">{item.name}</span>
-              <span className="text-black text-md">${parseFloat(item.price).toFixed(2)}</span>
+              <span className="text-black text-md notranslate">${parseFloat(item.price).toFixed(2)}</span>
               {item.toppings?.length > 0 && (
                 <span className="text-gray-600 text-sm">{item.toppings.map(t => t.name).join(', ')}</span>
               )}
@@ -525,7 +548,7 @@ function OrderSummary({ orderItems = [], onCheckout, onEditItem, onRemoveItem })
         >
           Checkout
         </button>
-        <p className="text-right font-semibold mt-2">Total: <span>${total}</span></p>
+        <p className="text-right font-semibold mt-2">Total: <span className="notranslate">${total}</span></p>
       </div>
     </div>
   );
