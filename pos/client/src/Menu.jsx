@@ -162,9 +162,9 @@ function Header() {
         <img src="/images/ShareteaLogo.png" alt="Sharetea" className="h-16" />
       </div>
 
-      {/* Time + Logout */}
+      {/* Time */}
       <div className="absolute right-6 top-5 flex items-center space-x-4">
-        <div className="bg-slate-600 py-2 px-4 rounded-full text-white text-2xl font-bold">
+        <div className="bg-slate-600 py-2 px-4 rounded-full text-white text-2xl font-bold notranslate">
           {time}
         </div>
       </div>

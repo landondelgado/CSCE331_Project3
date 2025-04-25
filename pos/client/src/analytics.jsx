@@ -79,7 +79,7 @@ function Header() {
         >
           Logout
         </button>
-        <div className="bg-slate-600 py-2 px-4 rounded-full text-white text-2xl font-bold">
+        <div className="bg-slate-600 py-2 px-4 rounded-full text-white text-2xl font-bold notranslate">
           {time}
         </div>
       </div>
@@ -121,9 +121,9 @@ function CategorySummary() {
             <tr key={idx} className="border-b">
               <td className="px-4 py-2">{row.category}</td>
               <td className="px-4 py-2">{row["Sales Qty"]}</td>
-              <td className="px-4 py-2">${parseFloat(row.Sales).toFixed(2)}</td>
+              <td className="px-4 py-2 notranslate">${parseFloat(row.Sales).toFixed(2)}</td>
               <td className="px-4 py-2">{row["Top Seller"]}</td>
-              <td className="px-4 py-2">{parseFloat(row["Top Seller %Sales"]).toFixed(2)}%</td>
+              <td className="px-4 py-2 notranslate">{parseFloat(row["Top Seller %Sales"]).toFixed(2)}%</td>
             </tr>
           ))}
         </tbody>
@@ -189,7 +189,7 @@ function ProductUsage() {
             {data.map((row, idx) => (
               <tr key={idx} className="border-b">
                 <td className="px-4 py-2">{row.ingredient_name}</td>
-                <td className="px-4 py-2">{parseFloat(row.total_used).toFixed(2)}</td>
+                <td className="px-4 py-2 notranslate">{parseFloat(row.total_used).toFixed(2)}</td>
                 <td className="px-4 py-2">{row.unit}</td>
               </tr>
             ))}
@@ -230,9 +230,9 @@ function HourlySales() {
         <tbody>
           {data.map((row, idx) => (
             <tr key={idx} className="border-b">
-              <td className="px-4 py-2">{`${row.hour}:00`}</td>
-              <td className="px-4 py-2">{row.sales_count}</td>
-              <td className="px-4 py-2">${parseFloat(row.total_revenue).toFixed(2)}</td>
+              <td className="px-4 py-2 notranslate">{`${row.hour}:00`}</td>
+              <td className="px-4 py-2 notranslate">{row.sales_count}</td>
+              <td className="px-4 py-2 notranslate">${parseFloat(row.total_revenue).toFixed(2)}</td>
             </tr>
           ))}
         </tbody>
