@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVisibility } from './App';
 import VisibilityControls from './VisibilityControls';
+import WeatherWidget from './WeatherWidget'; 
 
 // API base URL
 const API_BASE =
@@ -79,6 +80,7 @@ function Header() {
         >
           Logout
         </button>
+        <WeatherWidget /> 
         <div className="bg-slate-600 py-2 px-4 rounded-full text-white text-2xl font-bold notranslate">
           {time}
         </div>
