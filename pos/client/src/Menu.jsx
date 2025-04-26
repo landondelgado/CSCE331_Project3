@@ -543,7 +543,6 @@ function OrderSummary({ orderItems = [], onCheckout, onEditItem, onRemoveItem })
 
       {/* Gift Card and Checkout Buttons */}
       <div>
-        <button className="bg-gray-200 w-full py-2 rounded-md mb-2">Gift Card</button>
         <button
           className="bg-green-500 text-white w-full py-2 rounded-md font-semibold"
           onClick={onCheckout}
