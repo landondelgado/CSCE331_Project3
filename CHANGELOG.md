@@ -1,5 +1,18 @@
 CHANGELOG
 
+[Release 3] - 2025-04-27
+ADDED
+- Project 3 Sprint 3 Minutes.pdf
+- VisibilityControls.jsx
+- WeatherWidget.jsx
+
+CHANGED
+- Menu.jsx
+- kioskBackend.jsx
+
+REMOVED
+- Project 3 Sprint 2 Minutes.pdf
+
 [Release 2] - 2025-04-14
 
 ADDED
