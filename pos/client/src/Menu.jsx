@@ -118,21 +118,6 @@ function Header() {
             <span className="text-xs sm:text-sm font-medium">{item.label}</span>
           </button>
         ))}
-        {/* Search Bar */}
-        <div className="relative w-80">
-          <img
-            src="/images/search.png"
-            alt="Search"
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5"
-          />
-          <input
-            type="text"
-            placeholder="Search Menu..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-12 pr-6 py-3 w-full rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
         {/* Modified Translate Button */}
         <button
           onClick={() => setShowTranslateModal(true)}
