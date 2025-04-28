@@ -32,7 +32,7 @@ const VisibilityControls = () => {
         <label className="block text-sm font-semibold">Zoom</label>
         <input
           type="range"
-          min="50"
+          min="100"
           max="200"
           value={zoom}
           onChange={(e) => setZoom(+e.target.value)}
