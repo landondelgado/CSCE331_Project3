@@ -9,6 +9,7 @@ ADDED
 CHANGED
 - Menu.jsx
 - kioskBackend.jsx
+- App.js
 
 REMOVED
 - Project 3 Sprint 2 Minutes.pdf
